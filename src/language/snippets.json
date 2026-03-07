@@ -1,0 +1,238 @@
+{
+  "Live Loop": {
+    "prefix": "live_loop",
+    "body": [
+      "live_loop :${1:name} do",
+      "  ${0}",
+      "  sleep ${2:1}",
+      "end"
+    ],
+    "description": "Create a named live loop"
+  },
+  "Live Loop with Sync": {
+    "prefix": "live_loop_sync",
+    "body": [
+      "live_loop :${1:name} do",
+      "  sync :${2:cue_name}",
+      "  ${0}",
+      "end"
+    ],
+    "description": "Create a live loop that syncs to a cue"
+  },
+  "In Thread": {
+    "prefix": "in_thread",
+    "body": [
+      "in_thread do",
+      "  ${0}",
+      "end"
+    ],
+    "description": "Run code in a new thread"
+  },
+  "With FX": {
+    "prefix": "with_fx",
+    "body": [
+      "with_fx :${1:reverb} do",
+      "  ${0}",
+      "end"
+    ],
+    "description": "Wrap code in an audio effect"
+  },
+  "With FX (opts)": {
+    "prefix": "with_fx_opts",
+    "body": [
+      "with_fx :${1:reverb}, ${2:mix: 0.5} do",
+      "  ${0}",
+      "end"
+    ],
+    "description": "Wrap code in an audio effect with options"
+  },
+  "With Synth": {
+    "prefix": "with_synth",
+    "body": [
+      "with_synth :${1:prophet} do",
+      "  ${0}",
+      "end"
+    ],
+    "description": "Set the synth for a block"
+  },
+  "With BPM": {
+    "prefix": "with_bpm",
+    "body": [
+      "with_bpm ${1:120} do",
+      "  ${0}",
+      "end"
+    ],
+    "description": "Set the BPM for a block"
+  },
+  "Define": {
+    "prefix": "define",
+    "body": [
+      "define :${1:name} do",
+      "  ${0}",
+      "end"
+    ],
+    "description": "Define a named function"
+  },
+  "Define with params": {
+    "prefix": "define_params",
+    "body": [
+      "define :${1:name} do |${2:param}|",
+      "  ${0}",
+      "end"
+    ],
+    "description": "Define a named function with parameters"
+  },
+  "Play": {
+    "prefix": "play",
+    "body": "play ${1::c4}",
+    "description": "Play a note"
+  },
+  "Play with opts": {
+    "prefix": "play_opts",
+    "body": "play ${1::c4}, amp: ${2:1}, release: ${3:0.5}",
+    "description": "Play a note with options"
+  },
+  "Sample": {
+    "prefix": "sample",
+    "body": "sample :${1:bd_haus}",
+    "description": "Play a sample"
+  },
+  "Sample with opts": {
+    "prefix": "sample_opts",
+    "body": "sample :${1:bd_haus}, amp: ${2:1}, rate: ${3:1}",
+    "description": "Play a sample with options"
+  },
+  "Sleep": {
+    "prefix": "sleep",
+    "body": "sleep ${1:1}",
+    "description": "Wait for beats"
+  },
+  "Use Synth": {
+    "prefix": "use_synth",
+    "body": "use_synth :${1:prophet}",
+    "description": "Set the current synth"
+  },
+  "Use BPM": {
+    "prefix": "use_bpm",
+    "body": "use_bpm ${1:120}",
+    "description": "Set the current BPM"
+  },
+  "Cue": {
+    "prefix": "cue",
+    "body": "cue :${1:name}",
+    "description": "Send a cue event"
+  },
+  "Sync": {
+    "prefix": "sync",
+    "body": "sync :${1:name}",
+    "description": "Wait for a cue event"
+  },
+  "Comment Block": {
+    "prefix": "comment",
+    "body": [
+      "comment do",
+      "  ${0}",
+      "end"
+    ],
+    "description": "Comment out a block of code"
+  },
+  "Density": {
+    "prefix": "density",
+    "body": [
+      "density ${1:2} do",
+      "  ${0}",
+      "end"
+    ],
+    "description": "Multiply event density"
+  },
+  "With Random Seed": {
+    "prefix": "with_random_seed",
+    "body": [
+      "with_random_seed ${1:42} do",
+      "  ${0}",
+      "end"
+    ],
+    "description": "Set random seed for a block"
+  },
+  "Scale": {
+    "prefix": "scale",
+    "body": "scale(:${1:c4}, :${2:minor_pentatonic})",
+    "description": "Generate notes from a scale"
+  },
+  "Chord": {
+    "prefix": "chord",
+    "body": "chord(:${1:c4}, :${2:major})",
+    "description": "Generate notes from a chord"
+  },
+  "Spread": {
+    "prefix": "spread",
+    "body": "spread(${1:3}, ${2:8})",
+    "description": "Generate a Euclidean rhythm"
+  },
+  "Ring": {
+    "prefix": "ring",
+    "body": "(ring ${1:1, 2, 3, 4})",
+    "description": "Create a ring (circular) list"
+  },
+  "Tick Pattern": {
+    "prefix": "tick_pattern",
+    "body": [
+      "${1:notes} = (ring ${2::c4, :e4, :g4})",
+      "play ${1:notes}.tick"
+    ],
+    "description": "Tick through a ring of values"
+  },
+  "Beat Pattern": {
+    "prefix": "beat_pattern",
+    "body": [
+      "live_loop :${1:beat} do",
+      "  sample :${2:bd_haus}",
+      "  sleep 0.5",
+      "  sample :${3:sn_dub}",
+      "  sleep 0.5",
+      "end"
+    ],
+    "description": "Simple beat pattern"
+  },
+  "Melody Pattern": {
+    "prefix": "melody_pattern",
+    "body": [
+      "live_loop :${1:melody} do",
+      "  use_synth :${2:prophet}",
+      "  notes = (scale :${3:c4}, :${4:minor_pentatonic})",
+      "  play notes.choose, release: ${5:0.3}",
+      "  sleep ${6:0.25}",
+      "end"
+    ],
+    "description": "Random melody from a scale"
+  },
+  "FX Chain": {
+    "prefix": "fx_chain",
+    "body": [
+      "with_fx :${1:reverb}, mix: ${2:0.5} do",
+      "  with_fx :${3:echo}, phase: ${4:0.25} do",
+      "    ${0}",
+      "  end",
+      "end"
+    ],
+    "description": "Nested FX chain"
+  },
+  "At Schedule": {
+    "prefix": "at",
+    "body": [
+      "at [${1:0, 1, 2, 3}] do",
+      "  ${0}",
+      "end"
+    ],
+    "description": "Schedule code at beat offsets"
+  },
+  "Time Warp": {
+    "prefix": "time_warp",
+    "body": [
+      "time_warp ${1:0.5} do",
+      "  ${0}",
+      "end"
+    ],
+    "description": "Shift time for a block"
+  }
+}

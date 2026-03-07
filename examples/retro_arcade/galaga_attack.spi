@@ -1,0 +1,48 @@
+# Galaga - Attack Formation
+# Fast-paced space shooter with swooping aliens
+# Coded for Sonic Pi
+
+use_bpm 170
+
+live_loop :lead do
+  use_synth :square
+  use_synth_defaults release: 0.12, amp: 0.5, cutoff: 105
+  riff = [:e5, :e5, :ds5, :e5, :fs5, :e5, :ds5, :b4,
+          :cs5, :cs5, :b4, :cs5, :ds5, :cs5, :b4, :a4]
+  riff.each do |n|
+    play n
+    sleep 0.25
+  end
+end
+
+live_loop :swoop do
+  sleep 4
+  use_synth :beep
+  with_fx :slicer, phase: 0.05 do
+    s = play :e6, sustain: 0.5, release: 0.1, amp: 0.3
+    control s, note: :e4, note_slide: 0.5
+    sleep 0.6
+  end
+end
+
+live_loop :bass do
+  use_synth :tri
+  use_synth_defaults release: 0.15, amp: 0.5
+  [:e2, :e3, :e2, :e3, :a2, :a3, :a2, :a3].each do |n|
+    play n
+    sleep 0.25
+  end
+end
+
+live_loop :drums do
+  sample :bd_haus, amp: 0.5
+  sample :elec_tick, amp: 0.2
+  sleep 0.25
+  sample :elec_tick, amp: 0.15
+  sleep 0.25
+  sample :sn_dub, amp: 0.3, rate: 2
+  sample :elec_tick, amp: 0.2
+  sleep 0.25
+  sample :elec_tick, amp: 0.15
+  sleep 0.25
+end

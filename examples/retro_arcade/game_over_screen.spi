@@ -1,0 +1,40 @@
+# Game Over Screen
+# Universal arcade defeat jingle
+# Coded for Sonic Pi
+
+use_bpm 80
+
+with_fx :reverb, room: 0.7, mix: 0.4 do
+  with_fx :bitcrusher, bits: 8, sample_rate: 11000 do
+    use_synth :square
+
+    play :c5, release: 0.4, amp: 0.6
+    sleep 0.5
+    play :b4, release: 0.4, amp: 0.55
+    sleep 0.5
+    play :as4, release: 0.4, amp: 0.5
+    sleep 0.5
+    play :a4, release: 0.6, amp: 0.5
+    sleep 0.75
+
+    play :gs4, release: 0.4, amp: 0.45
+    sleep 0.5
+    play :g4, release: 0.4, amp: 0.4
+    sleep 0.5
+    play :fs4, release: 0.4, amp: 0.35
+    sleep 0.5
+
+    play_chord [:c3, :e3, :g3, :c4], release: 3, amp: 0.3
+    sleep 1
+
+    use_synth :tri
+    play :c3, release: 4, amp: 0.4
+    sleep 0.5
+    play :g2, release: 3.5, amp: 0.35
+    sleep 0.5
+    play :e2, release: 3, amp: 0.3
+    sleep 0.5
+    play :c2, release: 4, amp: 0.4
+    sleep 4
+  end
+end

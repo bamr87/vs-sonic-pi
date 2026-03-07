@@ -1,0 +1,56 @@
+# Ghosts 'n Goblins - Stage 1
+# Relentless graveyard action
+# Coded for Sonic Pi
+
+use_bpm 160
+
+live_loop :lead do
+  use_synth :square
+  use_synth_defaults release: 0.15, amp: 0.5, cutoff: 100
+
+  melody_a = [:a4, :c5, :e5, :a5, :e5, :c5, :a4, :b4,
+              :d5, :gs4, :b4, :e5, :b4, :gs4, :e4, :a4]
+  melody_a.each do |n|
+    play n
+    sleep 0.25
+  end
+
+  melody_b = [:a4, :c5, :e5, :a5, :g5, :f5, :e5, :d5,
+              :c5, :b4, :a4, :gs4, :a4, :r, :r, :r]
+  melody_b.each do |n|
+    play n
+    sleep 0.25
+  end
+end
+
+live_loop :arpeggio do
+  use_synth :pulse
+  use_synth_defaults release: 0.08, amp: 0.3, pulse_width: 0.25
+  [[:a3, :c4, :e4], [:e3, :gs3, :b3],
+   [:f3, :a3, :c4], [:e3, :gs3, :b3]].each do |arp|
+    4.times do
+      arp.each do |n|
+        play n
+        sleep 0.125
+      end
+    end
+  end
+end
+
+live_loop :bass do
+  use_synth :tri
+  [:a2, :a2, :a3, :a2, :e2, :e2, :e3, :e2,
+   :f2, :f2, :f3, :f2, :e2, :e2, :e3, :e2].each do |n|
+    play n, release: 0.15, amp: 0.5
+    sleep 0.25
+  end
+end
+
+live_loop :drums do
+  sample :bd_haus, amp: 0.5
+  sleep 0.5
+  sample :sn_dub, amp: 0.35, rate: 1.8
+  sleep 0.25
+  sample :bd_haus, amp: 0.3
+  sleep 0.25
+end

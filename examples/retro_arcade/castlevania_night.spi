@@ -1,0 +1,52 @@
+# Castlevania - Vampire Killer
+# Gothic NES action with driving pulse
+# Coded for Sonic Pi
+
+use_bpm 155
+
+live_loop :lead do
+  use_synth :square
+  use_synth_defaults release: 0.15, amp: 0.5, cutoff: 100
+
+  phrase_a = [:e5, :r, :ds5, :e5, :r, :ds5, :e5, :b4,
+              :d5, :c5, :a4, :r, :r, :r, :r, :r]
+  phrase_b = [:c4, :e4, :a4, :b4, :r, :r, :r, :r,
+              :d4, :gs4, :b4, :c5, :r, :r, :r, :r]
+  durs = [0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+          0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25]
+
+  play_pattern_timed phrase_a, durs
+  play_pattern_timed phrase_b, durs
+end
+
+live_loop :arpeggio do
+  use_synth :pulse
+  use_synth_defaults release: 0.1, amp: 0.35, pulse_width: 0.25
+  arps = [[:a3, :c4, :e4], [:e3, :gs3, :b3],
+          [:f3, :a3, :c4], [:e3, :gs3, :b3]]
+  arps.each do |arp|
+    4.times do
+      arp.each do |n|
+        play n
+        sleep 0.125
+      end
+    end
+  end
+end
+
+live_loop :bass do
+  use_synth :tri
+  use_synth_defaults release: 0.2, amp: 0.5
+  [:a2, :a2, :a3, :a2, :e2, :e2, :e3, :e2,
+   :f2, :f2, :f3, :f2, :e2, :e2, :e3, :e2].each do |n|
+    play n
+    sleep 0.25
+  end
+end
+
+live_loop :drums do
+  sample :bd_haus, amp: 0.5
+  sleep 0.5
+  sample :sn_dub, amp: 0.35, rate: 1.8
+  sleep 0.5
+end

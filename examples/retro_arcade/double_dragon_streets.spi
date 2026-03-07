@@ -1,0 +1,47 @@
+# Double Dragon - City Streets
+# Beat-em-up swagger with gritty bass
+# Coded for Sonic Pi
+
+use_bpm 130
+
+live_loop :lead do
+  use_synth :square
+  use_synth_defaults release: 0.2, amp: 0.5, cutoff: 95
+
+  melody = [:e4, :g4, :a4, :b4, :a4, :g4, :e4, :r,
+            :d4, :e4, :g4, :a4, :g4, :e4, :d4, :r,
+            :c4, :d4, :e4, :g4, :a4, :g4, :e4, :d4,
+            :e4, :r, :r, :r, :r, :r, :r, :r]
+  durs = [0.25, 0.25, 0.25, 0.5, 0.25, 0.25, 0.5, 0.25,
+          0.25, 0.25, 0.25, 0.5, 0.25, 0.25, 0.5, 0.25,
+          0.25, 0.25, 0.25, 0.25, 0.5, 0.25, 0.25, 0.25,
+          0.75, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25]
+  play_pattern_timed melody, durs
+end
+
+live_loop :bass do
+  use_synth :dsaw
+  use_synth_defaults release: 0.2, amp: 0.35, cutoff: 70
+  [:e2, :e2, :e2, :g2, :a2, :a2, :g2, :e2,
+   :d2, :d2, :d2, :e2, :c2, :c2, :d2, :e2].each do |n|
+    play n
+    sleep 0.25
+  end
+end
+
+live_loop :drums do
+  sample :bd_haus, amp: 0.55
+  sleep 0.5
+  sample :sn_dub, amp: 0.4, rate: 1.5
+  sleep 0.5
+end
+
+live_loop :hats do
+  sample :elec_tick, amp: 0.2
+  sleep 0.25
+end
+
+live_loop :punch_sfx do
+  sleep rrand(3, 6)
+  sample :elec_blip, rate: rrand(0.3, 0.6), amp: 0.2
+end

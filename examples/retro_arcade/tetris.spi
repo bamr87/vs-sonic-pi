@@ -1,0 +1,48 @@
+# Tetris (Korobeiniki)
+# Classic falling blocks theme
+# Coded for Sonic Pi
+
+use_bpm 150
+
+live_loop :melody do
+  use_synth :square
+  use_synth_defaults release: 0.2, amp: 0.5, cutoff: 100
+
+  notes = [:e5, :b4, :c5, :d5, :c5, :b4,
+           :a4, :a4, :c5, :e5, :d5, :c5,
+           :b4, :c5, :d5, :e5,
+           :c5, :a4, :a4, :r,
+           :d5, :f5, :a5, :g5, :f5,
+           :e5, :c5, :e5, :d5, :c5,
+           :b4, :b4, :c5, :d5, :e5,
+           :c5, :a4, :a4, :r]
+
+  durs = [0.5, 0.25, 0.25, 0.5, 0.25, 0.25,
+          0.5, 0.25, 0.25, 0.5, 0.25, 0.25,
+          0.75, 0.25, 0.5, 0.5,
+          0.5, 0.5, 0.5, 0.5,
+          0.75, 0.25, 0.5, 0.25, 0.25,
+          0.75, 0.25, 0.5, 0.25, 0.25,
+          0.5, 0.25, 0.25, 0.5, 0.5,
+          0.5, 0.5, 0.5, 0.5]
+
+  play_pattern_timed notes, durs
+end
+
+live_loop :bass do
+  use_synth :tri
+  use_synth_defaults release: 0.3, amp: 0.4
+  bass = [:e3, :e3, :a2, :a2, :gs2, :gs2, :a2, :a2,
+          :d3, :d3, :c3, :c3, :b2, :b2, :a2, :a2]
+  bass.each do |n|
+    play n
+    sleep 0.5
+  end
+end
+
+live_loop :beat do
+  sample :bd_haus, amp: 0.4
+  sleep 0.5
+  sample :sn_dub, amp: 0.3, rate: 2
+  sleep 0.5
+end

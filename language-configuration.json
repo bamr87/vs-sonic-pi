@@ -1,0 +1,37 @@
+{
+  "comments": {
+    "lineComment": "#"
+  },
+  "brackets": [
+    ["{", "}"],
+    ["[", "]"],
+    ["(", ")"]
+  ],
+  "autoClosingPairs": [
+    { "open": "{", "close": "}" },
+    { "open": "[", "close": "]" },
+    { "open": "(", "close": ")" },
+    { "open": "\"", "close": "\"", "notIn": ["string"] },
+    { "open": "'", "close": "'", "notIn": ["string", "comment"] },
+    { "open": "|", "close": "|", "notIn": ["string", "comment"] }
+  ],
+  "surroundingPairs": [
+    { "open": "{", "close": "}" },
+    { "open": "[", "close": "]" },
+    { "open": "(", "close": ")" },
+    { "open": "\"", "close": "\"" },
+    { "open": "'", "close": "'" },
+    { "open": "|", "close": "|" }
+  ],
+  "wordPattern": "(-?\\d*\\.\\d\\w*)|([^\\`\\~\\!\\@\\#\\%\\^\\&\\*\\(\\)\\-\\=\\+\\[\\{\\]\\}\\\\\\|\\;\\:\\'\\\"\\,\\.\\<\\>\\/\\?\\s]+)",
+  "indentationRules": {
+    "increaseIndentPattern": "^\\s*(live_loop|in_thread|with_fx|with_synth|with_bpm|with_bpm_mul|with_sample_bpm|with_random_seed|with_random_source|with_synth_defaults|with_merged_synth_defaults|with_sample_defaults|with_merged_sample_defaults|with_arg_bpm_scaling|with_timing_guarantees|with_timing_warnings|with_debug|with_arg_checks|with_osc|with_osc_logging|with_cue_logging|with_cent_tuning|with_octave|with_swing|define|defonce|comment|uncomment|density|at|time_warp|on)\\b.*|.*\\b(do)\\s*(\\|[^|]*\\|)?\\s*$|.*\\{\\s*(\\|[^|]*\\|)?\\s*$",
+    "decreaseIndentPattern": "^\\s*(end|\\})"
+  },
+  "folding": {
+    "markers": {
+      "start": "^\\s*(live_loop|in_thread|with_fx|define|defonce|do)\\b|\\{",
+      "end": "^\\s*end\\b|\\}"
+    }
+  }
+}

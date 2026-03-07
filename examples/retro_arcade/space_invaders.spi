@@ -1,0 +1,35 @@
+# Space Invaders
+# Descending alien march with laser blasts
+# Coded for Sonic Pi
+
+use_bpm 140
+
+live_loop :march do
+  use_synth :square
+  use_synth_defaults release: 0.1, amp: 0.6, cutoff: 90
+  notes = [:e3, :d3, :c3, :b2, :c3, :d3, :e3, :e3]
+  notes.each do |n|
+    play n
+    sleep 0.25
+  end
+end
+
+live_loop :bass_drone do
+  use_synth :dsaw
+  play :e1, release: 4, amp: 0.4, cutoff: 60
+  sleep 4
+end
+
+live_loop :laser, sync: :march do
+  sleep [2, 3, 4].choose
+  use_synth :beep
+  play rrand_i(90, 110), release: 0.05, amp: 0.5
+  sample :elec_blip, rate: 2, amp: 0.3
+end
+
+live_loop :drums do
+  sample :bd_haus, amp: 0.5
+  sleep 0.5
+  sample :elec_tick, amp: 0.3
+  sleep 0.5
+end

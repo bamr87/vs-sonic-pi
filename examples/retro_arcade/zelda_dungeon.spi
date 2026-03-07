@@ -1,0 +1,40 @@
+# Legend of Zelda - Dungeon Theme
+# Dark and mysterious underground exploration
+# Coded for Sonic Pi
+
+use_bpm 90
+
+live_loop :dungeon do
+  use_synth :tri
+  with_fx :reverb, room: 0.8, mix: 0.5 do
+    with_fx :echo, phase: 0.375, decay: 4, mix: 0.3 do
+      notes = [:a2, :r, :a2, :r, :a2, :r, :a2, :as2,
+               :a2, :r, :a2, :r, :a2, :r, :gs2, :a2]
+      durs =  [0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+               0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25]
+      play_pattern_timed notes, durs, release: 0.2, amp: 0.6
+    end
+  end
+end
+
+live_loop :eerie_pad do
+  use_synth :dark_ambience
+  play :a3, release: 4, amp: 0.2, cutoff: 70
+  sleep 4
+  play :gs3, release: 4, amp: 0.2, cutoff: 70
+  sleep 4
+end
+
+live_loop :drip do
+  sleep rrand(1, 4)
+  use_synth :beep
+  play rrand_i(80, 100), release: 0.05, amp: rrand(0.1, 0.3)
+end
+
+live_loop :heartbeat do
+  sample :bd_haus, amp: 0.3, rate: 0.8
+  sleep 0.3
+  sample :bd_haus, amp: 0.2, rate: 0.6
+  sleep 0.7
+  sleep 1
+end

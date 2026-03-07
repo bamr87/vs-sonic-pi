@@ -1,0 +1,107 @@
+# Enta Omri (You Are My Life) - Umm Kulthum
+# Composed by Mohamed Abdel Wahab, 1964
+# Maqam Rast - the mother of all maqamat
+# Coded for Sonic Pi
+
+use_bpm 72
+
+# Maqam Rast on C: C D E-half-flat F G A B-half-flat C
+# Sonic Pi lacks quarter tones, so we approximate with
+# pitch bends and slides to evoke the maqam flavor.
+
+define :taqasim do |note, dur|
+  use_synth :pluck
+  play note, release: dur * 0.8, amp: 0.5, coef: 0.3
+end
+
+live_loop :qanun do
+  use_synth :pluck
+  with_fx :reverb, room: 0.6, mix: 0.35 do
+    with_fx :echo, phase: 0.75, decay: 2, mix: 0.15 do
+      use_synth_defaults release: 0.6, amp: 0.4, coef: 0.2
+
+      phrase_a = [:c5, :d5, :e5, :f5, :g5, :f5, :e5, :d5,
+                  :c5, :d5, :e5, :d5, :c5, :r, :r, :r]
+      durs_a =   [0.5, 0.5, 0.5, 0.5, 1, 0.5, 0.5, 0.5,
+                  0.5, 0.25, 0.25, 0.5, 1, 0.5, 0.5, 0.5]
+      play_pattern_timed phrase_a, durs_a
+
+      phrase_b = [:g5, :a5, :g5, :f5, :e5, :f5, :g5, :f5,
+                  :e5, :d5, :c5, :d5, :c5, :r, :r, :r]
+      durs_b =   [0.5, 1, 0.5, 0.5, 0.5, 0.25, 0.25, 0.5,
+                  0.5, 0.5, 0.5, 0.5, 1.5, 0.5, 0.5, 0.5]
+      play_pattern_timed phrase_b, durs_b
+    end
+  end
+end
+
+live_loop :oud do
+  use_synth :pluck
+  with_fx :lpf, cutoff: 85 do
+    use_synth_defaults release: 1.2, amp: 0.35, coef: 0.5
+
+    ornament = [:c4, :d4, :c4, :d4, :e4, :f4, :e4, :d4,
+                :c4, :r, :g4, :f4, :e4, :d4, :c4, :r]
+    durs =     [0.25, 0.25, 0.25, 0.25, 0.5, 0.5, 0.25, 0.25,
+                1, 0.5, 0.5, 0.5, 0.5, 0.5, 1, 1]
+    play_pattern_timed ornament, durs
+  end
+end
+
+live_loop :strings do
+  use_synth :prophet
+  with_fx :reverb, room: 0.7, mix: 0.4 do
+    use_synth_defaults release: 3, amp: 0.2, cutoff: 80
+
+    [[:c3, :g3, :c4], [:f3, :a3, :c4],
+     [:g3, :b3, :d4], [:c3, :e3, :g3]].each do |c|
+      play_chord c
+      sleep 2
+    end
+  end
+end
+
+live_loop :nay do
+  sync :qanun
+  use_synth :tri
+  with_fx :reverb, room: 0.8, mix: 0.5 do
+    with_fx :lpf, cutoff: 90 do
+      use_synth_defaults release: 1.5, amp: 0.2
+
+      sleep 8
+      melody = [:g5, :a5, :g5, :f5, :e5, :d5, :c5, :d5,
+                :e5, :f5, :e5, :d5, :c5, :r, :r, :r]
+      durs =   [0.75, 0.75, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
+                0.75, 0.75, 0.5, 0.5, 1.5, 0.5, 0.5, 0.5]
+      play_pattern_timed melody, durs
+    end
+  end
+end
+
+live_loop :riqq do
+  sample :drum_cymbal_closed, amp: 0.15, rate: 2.5
+  sleep 0.25
+  sample :drum_cymbal_closed, amp: 0.1, rate: 3
+  sleep 0.25
+  sample :drum_cymbal_closed, amp: 0.15, rate: 2.5
+  sleep 0.25
+  sample :drum_cymbal_closed, amp: 0.2, rate: 2
+  sleep 0.25
+end
+
+live_loop :darbuka do
+  # Maqsoum rhythm: dum tek _ tek dum _ tek _
+  sample :bd_haus, amp: 0.4, rate: 0.8
+  sleep 0.25
+  sample :drum_cymbal_closed, amp: 0.2, rate: 3.5
+  sleep 0.25
+  sleep 0.25
+  sample :drum_cymbal_closed, amp: 0.2, rate: 3.5
+  sleep 0.25
+  sample :bd_haus, amp: 0.35, rate: 0.8
+  sleep 0.25
+  sleep 0.25
+  sample :drum_cymbal_closed, amp: 0.2, rate: 3.5
+  sleep 0.25
+  sleep 0.25
+end

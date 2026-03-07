@@ -1,0 +1,370 @@
+{
+  "name": "vs-sonic-pi",
+  "displayName": "Sonic Pi for VS Code",
+  "description": "Code. Music. Live. — Write and perform Sonic Pi music from VS Code.",
+  "version": "0.1.0",
+  "publisher": "bamr87",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.109.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Education",
+    "Other"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bamr87/vs-sonic-pi"
+  },
+  "keywords": [
+    "sonic-pi",
+    "music",
+    "live-coding",
+    "audio",
+    "synthesis"
+  ],
+  "icon": "images/sonic-pi-icon.png",
+  "activationEvents": [
+    "onLanguage:sonicpi",
+    "onView:sonicpi.tutorialTree"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "sonicpi",
+        "aliases": [
+          "Sonic Pi",
+          "sonicpi"
+        ],
+        "extensions": [
+          ".spi",
+          ".sonicpi"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "sonicpi",
+        "scopeName": "source.sonicpi",
+        "path": "./syntaxes/sonicpi.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "sonicpi.run",
+        "title": "Sonic Pi: Run",
+        "icon": "$(play)"
+      },
+      {
+        "command": "sonicpi.runSelection",
+        "title": "Sonic Pi: Run Selection",
+        "icon": "$(play-circle)"
+      },
+      {
+        "command": "sonicpi.stop",
+        "title": "Sonic Pi: Stop",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "sonicpi.connect",
+        "title": "Sonic Pi: Connect",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "sonicpi.disconnect",
+        "title": "Sonic Pi: Disconnect",
+        "icon": "$(debug-disconnect)"
+      },
+      {
+        "command": "sonicpi.openExamples",
+        "title": "Sonic Pi: Open Examples",
+        "icon": "$(file-code)"
+      },
+      {
+        "command": "sonicpi.startRecording",
+        "title": "Sonic Pi: Start Recording",
+        "icon": "$(circle-filled)"
+      },
+      {
+        "command": "sonicpi.stopRecording",
+        "title": "Sonic Pi: Stop Recording",
+        "icon": "$(primitive-square)"
+      },
+      {
+        "command": "sonicpi.saveRecording",
+        "title": "Sonic Pi: Save Recording",
+        "icon": "$(save)"
+      },
+      {
+        "command": "sonicpi.beautify",
+        "title": "Sonic Pi: Beautify Buffer",
+        "icon": "$(wand)"
+      },
+      {
+        "command": "sonicpi.openTutorial",
+        "title": "Sonic Pi: Open Tutorial",
+        "icon": "$(book)"
+      },
+      {
+        "command": "sonicpi.openTutorialChapter",
+        "title": "Sonic Pi: Open Tutorial Chapter"
+      },
+      {
+        "command": "sonicpi.openReference",
+        "title": "Sonic Pi: Language Reference",
+        "icon": "$(references)"
+      },
+      {
+        "command": "sonicpi.openExampleFile",
+        "title": "Sonic Pi: Open Example File"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "sonicpi.run",
+          "when": "editorLangId == sonicpi",
+          "group": "navigation@1"
+        },
+        {
+          "command": "sonicpi.stop",
+          "when": "editorLangId == sonicpi",
+          "group": "navigation@2"
+        }
+      ],
+      "editor/title/run": [
+        {
+          "command": "sonicpi.run",
+          "when": "editorLangId == sonicpi",
+          "group": "navigation@1"
+        },
+        {
+          "command": "sonicpi.runSelection",
+          "when": "editorLangId == sonicpi",
+          "group": "navigation@2"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "sonicpi.run",
+          "when": "editorLangId == sonicpi",
+          "group": "sonicpi@1"
+        },
+        {
+          "command": "sonicpi.runSelection",
+          "when": "editorLangId == sonicpi && editorHasSelection",
+          "group": "sonicpi@2"
+        },
+        {
+          "command": "sonicpi.stop",
+          "when": "editorLangId == sonicpi",
+          "group": "sonicpi@3"
+        },
+        {
+          "command": "sonicpi.beautify",
+          "when": "editorLangId == sonicpi",
+          "group": "sonicpi@4"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "sonicpi.openReference",
+          "when": "view == sonicpi.controlsTree",
+          "group": "navigation"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sonicpi",
+          "title": "Sonic Pi",
+          "icon": "images/sonic-pi-icon.png"
+        }
+      ]
+    },
+    "views": {
+      "sonicpi": [
+        {
+          "id": "sonicpi.controlsTree",
+          "name": "Controls"
+        },
+        {
+          "id": "sonicpi.examplesTree",
+          "name": "Examples"
+        },
+        {
+          "id": "sonicpi.tutorialTree",
+          "name": "Tutorial"
+        }
+      ]
+    },
+    "walkthroughs": [
+      {
+        "id": "sonicpi.gettingStarted",
+        "title": "Getting Started with Sonic Pi",
+        "description": "Learn to make music with code in VS Code.",
+        "steps": [
+          {
+            "id": "installSonicPi",
+            "title": "Install Sonic Pi",
+            "description": "Download and install Sonic Pi from [sonic-pi.net](https://sonic-pi.net). The VS Code extension communicates with the Sonic Pi application over OSC.\n\n[Download Sonic Pi](https://sonic-pi.net)",
+            "media": {
+              "markdown": "media/tutorial/01-Welcome-to-Sonic-Pi.md"
+            }
+          },
+          {
+            "id": "openFile",
+            "title": "Create a .spi File",
+            "description": "Create a new file with the `.spi` extension. This activates syntax highlighting, IntelliSense, and all Sonic Pi features.\n\n[Create File](command:workbench.action.files.newUntitledFile)",
+            "media": {
+              "markdown": "media/tutorial/02.1-Your-First-Beeps.md"
+            }
+          },
+          {
+            "id": "connect",
+            "title": "Connect to Sonic Pi",
+            "description": "Make sure Sonic Pi is running, then connect from VS Code. Click the status bar item or run the Connect command.\n\n[Connect Now](command:sonicpi.connect)",
+            "media": {
+              "markdown": "media/tutorial/02.1-Your-First-Beeps.md"
+            }
+          },
+          {
+            "id": "runCode",
+            "title": "Run Your First Code",
+            "description": "Type `play 60` in your `.spi` file and press **F5** to hear middle C! Try changing the number to explore different notes.\n\n[Run Code](command:sonicpi.run)",
+            "media": {
+              "markdown": "media/tutorial/02.1-Your-First-Beeps.md"
+            }
+          },
+          {
+            "id": "exploreTutorial",
+            "title": "Explore the Tutorial",
+            "description": "Open the built-in Sonic Pi tutorial to learn synths, samples, FX, live coding, and more.\n\n[Open Tutorial](command:sonicpi.openTutorial)",
+            "media": {
+              "markdown": "media/tutorial/02.2-Synth-Params.md"
+            }
+          }
+        ]
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "sonicpi.run",
+        "key": "f5",
+        "when": "editorLangId == sonicpi"
+      },
+      {
+        "command": "sonicpi.stop",
+        "key": "shift+f5",
+        "when": "editorLangId == sonicpi"
+      },
+      {
+        "command": "sonicpi.runSelection",
+        "key": "ctrl+f5",
+        "mac": "cmd+f5",
+        "when": "editorLangId == sonicpi"
+      }
+    ],
+    "configuration": {
+      "title": "Sonic Pi",
+      "properties": {
+        "sonicpi.osc.host": {
+          "type": "string",
+          "default": "127.0.0.1",
+          "description": "IP address of the Sonic Pi server."
+        },
+        "sonicpi.osc.sendPort": {
+          "type": "number",
+          "default": 4557,
+          "minimum": 1,
+          "maximum": 65535,
+          "description": "UDP port to send OSC commands to."
+        },
+        "sonicpi.osc.listenPort": {
+          "type": "number",
+          "default": 4558,
+          "minimum": 1,
+          "maximum": 65535,
+          "description": "UDP port to listen for server responses."
+        },
+        "sonicpi.osc.daemonPort": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 65535,
+          "description": "Port for keep-alive messages (0 = auto-discover)."
+        },
+        "sonicpi.autoConnect": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically connect to Sonic Pi when a .spi file is opened."
+        },
+        "sonicpi.heartbeatInterval": {
+          "type": "number",
+          "default": 2000,
+          "minimum": 500,
+          "maximum": 10000,
+          "description": "Milliseconds between keep-alive heartbeats."
+        },
+        "sonicpi.sonicPiPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to Sonic Pi installation (empty = auto-detect)."
+        },
+        "sonicpi.logLevel": {
+          "type": "string",
+          "default": "info",
+          "enum": [
+            "debug",
+            "info",
+            "warning",
+            "error"
+          ],
+          "enumDescriptions": [
+            "Show all messages including internal debug output.",
+            "Show user output, cues, syncs, and errors (default).",
+            "Show warnings and errors only.",
+            "Show errors only."
+          ],
+          "description": "Minimum log level to display in the Sonic Pi Log."
+        }
+      }
+    },
+    "snippets": [
+      {
+        "language": "sonicpi",
+        "path": "./src/language/snippets.json"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
+    "watch": "npm run build -- --watch",
+    "lint": "eslint src/",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "extract-data": "tsx scripts/extract-sonic-pi-data.ts",
+    "copy-tutorial": "bash scripts/copy-tutorial.sh",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/vscode": "^1.109.0",
+    "@vscode/test-electron": "^2.5.2",
+    "esbuild": "^0.27.3",
+    "eslint": "^10.0.2",
+    "prettier": "^3.8.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1",
+    "vitest": "^4.0.18"
+  },
+  "dependencies": {
+    "node-osc": "^11.2.2"
+  }
+}

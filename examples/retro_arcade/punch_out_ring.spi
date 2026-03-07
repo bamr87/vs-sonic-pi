@@ -1,0 +1,50 @@
+# Punch-Out!! - Fight Theme
+# Boxing ring intensity with knockout power
+# Coded for Sonic Pi
+
+use_bpm 150
+
+live_loop :lead do
+  use_synth :square
+  use_synth_defaults release: 0.15, amp: 0.5, cutoff: 100
+
+  riff = [:c5, :c5, :r, :c5, :r, :c5, :d5, :e5,
+          :e5, :d5, :c5, :d5, :r, :r, :r, :r,
+          :d5, :d5, :r, :d5, :r, :d5, :e5, :f5,
+          :f5, :e5, :d5, :c5, :r, :r, :r, :r]
+  durs = [0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+          0.25, 0.25, 0.25, 0.5, 0.25, 0.25, 0.25, 0.25,
+          0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+          0.25, 0.25, 0.25, 0.5, 0.25, 0.25, 0.25, 0.25]
+  play_pattern_timed riff, durs
+end
+
+live_loop :bass do
+  use_synth :tri
+  use_synth_defaults release: 0.15, amp: 0.5
+  [:c2, :c3, :c2, :c3, :g2, :g3, :g2, :g3,
+   :d2, :d3, :d2, :d3, :c2, :c3, :c2, :c3].each do |n|
+    play n
+    sleep 0.25
+  end
+end
+
+live_loop :drums do
+  sample :bd_haus, amp: 0.6
+  sleep 0.25
+  sample :elec_tick, amp: 0.2
+  sleep 0.25
+  sample :sn_dub, amp: 0.45, rate: 1.5
+  sleep 0.25
+  sample :elec_tick, amp: 0.2
+  sleep 0.25
+end
+
+live_loop :bell do
+  sleep 8
+  use_synth :beep
+  3.times do
+    play :c6, release: 0.2, amp: 0.4
+    sleep 0.3
+  end
+end

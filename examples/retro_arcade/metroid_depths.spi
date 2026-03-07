@@ -1,0 +1,44 @@
+# Metroid - Brinstar Depths
+# Eerie alien atmosphere with pulsing bass
+# Coded for Sonic Pi
+
+use_bpm 80
+
+live_loop :atmosphere do
+  use_synth :dark_ambience
+  with_fx :reverb, room: 0.9, mix: 0.6 do
+    play [:a2, :e3, :b3].choose, release: 6, amp: 0.2, cutoff: 60
+    sleep 4
+  end
+end
+
+live_loop :pulse do
+  use_synth :tri
+  with_fx :echo, phase: 0.25, decay: 3, mix: 0.4 do
+    notes = [:a2, :a2, :a2, :a2, :e2, :e2, :gs2, :a2]
+    notes.each do |n|
+      play n, release: 0.2, amp: 0.5
+      sleep 0.5
+    end
+  end
+end
+
+live_loop :melody do
+  use_synth :square
+  with_fx :echo, phase: 0.5, decay: 2, mix: 0.3 do
+    use_synth_defaults release: 0.3, amp: 0.35, cutoff: 90
+    notes = [:e4, :r, :gs4, :a4, :r, :b4, :a4, :gs4,
+             :e4, :r, :r, :r, :r, :r, :r, :r]
+    durs = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
+            1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+    play_pattern_timed notes, durs
+  end
+end
+
+live_loop :alien_blip do
+  sleep rrand(2, 6)
+  use_synth :beep
+  with_fx :reverb, room: 0.7 do
+    play rrand_i(70, 100), release: 0.03, amp: rrand(0.1, 0.25)
+  end
+end

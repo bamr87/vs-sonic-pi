@@ -1,0 +1,57 @@
+# Bubble Bobble - Main Theme
+# Cute and catchy bubble-popping fun
+# Coded for Sonic Pi
+
+use_bpm 165
+
+live_loop :melody do
+  use_synth :square
+  use_synth_defaults release: 0.12, amp: 0.5, cutoff: 110
+
+  phrase_a = [:c5, :e5, :g5, :e5, :c5, :e5, :g5, :a5,
+              :g5, :e5, :c5, :d5, :e5, :d5, :c5, :r]
+  durs_a =   [0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+              0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.5, 0.25]
+
+  phrase_b = [:d5, :f5, :a5, :f5, :d5, :f5, :a5, :b5,
+              :a5, :f5, :d5, :e5, :f5, :e5, :c5, :r]
+  durs_b =   [0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+              0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.5, 0.25]
+
+  play_pattern_timed phrase_a, durs_a
+  play_pattern_timed phrase_b, durs_b
+end
+
+live_loop :harmony do
+  use_synth :pulse
+  use_synth_defaults release: 0.15, amp: 0.25, pulse_width: 0.3
+  [chord(:c4, :major), chord(:f4, :major),
+   chord(:d4, :minor), chord(:g4, :major)].each do |c|
+    play_chord c
+    sleep 1
+  end
+end
+
+live_loop :bass do
+  use_synth :tri
+  [:c3, :e3, :g3, :e3, :f3, :a3, :c4, :a3,
+   :d3, :f3, :a3, :f3, :g3, :b3, :d4, :b3].each do |n|
+    play n, release: 0.12, amp: 0.45
+    sleep 0.25
+  end
+end
+
+live_loop :drums do
+  sample :bd_haus, amp: 0.4
+  sleep 0.5
+  sample :sn_dub, amp: 0.3, rate: 2
+  sleep 0.25
+  sample :bd_haus, amp: 0.25
+  sleep 0.25
+end
+
+live_loop :pop do
+  sleep [1, 1.5, 2, 2.5].choose
+  use_synth :beep
+  play rrand_i(90, 100), release: 0.03, amp: 0.25
+end

@@ -1,0 +1,47 @@
+# Mega Man - Stage Select
+# Upbeat chiptune action theme
+# Coded for Sonic Pi
+
+use_bpm 160
+
+live_loop :lead do
+  use_synth :square
+  use_synth_defaults release: 0.15, amp: 0.5, cutoff: 105
+
+  riff = [:a4, :cs5, :e5, :a5, :gs5, :e5, :cs5, :a4,
+          :b4, :d5, :fs5, :b5, :a5, :fs5, :d5, :b4]
+  durs = [0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+          0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25]
+  play_pattern_timed riff, durs
+end
+
+live_loop :harmony do
+  use_synth :pulse
+  use_synth_defaults release: 0.2, amp: 0.3, pulse_width: 0.3
+  chords = [chord(:a3, :major), chord(:b3, :minor),
+            chord(:cs4, :minor), chord(:d4, :major)]
+  chords.each do |c|
+    play_chord c
+    sleep 1
+  end
+end
+
+live_loop :bass do
+  use_synth :tri
+  use_synth_defaults release: 0.15, amp: 0.5
+  [:a2, :a2, :a3, :a2, :b2, :b2, :b3, :b2].each do |n|
+    play n
+    sleep 0.25
+  end
+end
+
+live_loop :drums do
+  sample :bd_haus, amp: 0.5
+  sleep 0.25
+  sample :elec_tick, amp: 0.3
+  sleep 0.25
+  sample :sn_dub, amp: 0.3, rate: 2
+  sleep 0.25
+  sample :elec_tick, amp: 0.3
+  sleep 0.25
+end

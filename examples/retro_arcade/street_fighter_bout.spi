@@ -1,0 +1,47 @@
+# Street Fighter II - Guile's Theme
+# Intense fighting game energy
+# Coded for Sonic Pi
+
+use_bpm 140
+
+live_loop :lead do
+  use_synth :square
+  use_synth_defaults release: 0.2, amp: 0.5, cutoff: 100
+
+  melody = [:r, :r, :c5, :d5, :ds5, :d5, :c5, :d5,
+            :ds5, :f5, :ds5, :d5, :c5, :r, :r, :r,
+            :r, :r, :g4, :as4, :c5, :as4, :g4, :as4,
+            :c5, :d5, :c5, :as4, :g4, :r, :r, :r]
+  durs = [0.5, 0.25, 0.25, 0.25, 0.5, 0.25, 0.25, 0.25,
+          0.25, 0.5, 0.25, 0.25, 0.5, 0.5, 0.5, 0.5,
+          0.5, 0.25, 0.25, 0.25, 0.5, 0.25, 0.25, 0.25,
+          0.25, 0.5, 0.25, 0.25, 0.5, 0.5, 0.5, 0.5]
+  play_pattern_timed melody, durs
+end
+
+live_loop :power_chords do
+  use_synth :dsaw
+  use_synth_defaults release: 0.3, amp: 0.25, cutoff: 80
+  [[:c3, :g3], [:as2, :f3], [:gs2, :ds3], [:as2, :f3]].each do |c|
+    play_chord c
+    sleep 2
+  end
+end
+
+live_loop :bass do
+  use_synth :tri
+  [:c2, :c2, :c3, :c2, :as1, :as1, :as2, :as1,
+   :gs1, :gs1, :gs2, :gs1, :as1, :as1, :as2, :as1].each do |n|
+    play n, release: 0.15, amp: 0.5
+    sleep 0.25
+  end
+end
+
+live_loop :drums do
+  sample :bd_haus, amp: 0.6
+  sleep 0.5
+  sample :sn_dub, amp: 0.4, rate: 1.5
+  sleep 0.25
+  sample :bd_haus, amp: 0.3
+  sleep 0.25
+end

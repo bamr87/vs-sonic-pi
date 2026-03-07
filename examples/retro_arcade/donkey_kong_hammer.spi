@@ -1,0 +1,46 @@
+# Donkey Kong - Hammer Time
+# Frantic barrel-dodging energy
+# Coded for Sonic Pi
+
+use_bpm 180
+
+live_loop :hammer_theme do
+  use_synth :square
+  use_synth_defaults release: 0.12, amp: 0.55, cutoff: 100
+
+  phrase = [:c5, :e5, :g5, :c6, :g5, :e5,
+            :c5, :d5, :f5, :a5, :f5, :d5,
+            :b4, :d5, :g5, :b5, :g5, :d5,
+            :c5, :e5, :g5, :c6, :r, :r]
+  durs = [0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+          0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+          0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+          0.25, 0.25, 0.25, 0.5, 0.25, 0.25]
+  play_pattern_timed phrase, durs
+end
+
+live_loop :bass do
+  use_synth :tri
+  [:c2, :c3, :f2, :f3, :g2, :g3, :c2, :c3].each do |n|
+    play n, release: 0.15, amp: 0.5
+    sleep 0.25
+  end
+end
+
+live_loop :barrel_roll do
+  sample :bd_haus, amp: 0.5
+  sleep 0.25
+  sample :elec_blip, rate: 0.5, amp: 0.2
+  sleep 0.25
+  sample :sn_dub, amp: 0.35, rate: 1.5
+  sleep 0.25
+  sample :elec_blip, rate: 0.7, amp: 0.2
+  sleep 0.25
+end
+
+live_loop :jump do
+  sleep [1, 2, 1.5].choose
+  use_synth :beep
+  s = play :c4, release: 0.15, amp: 0.3
+  control s, note: :c5, note_slide: 0.1
+end

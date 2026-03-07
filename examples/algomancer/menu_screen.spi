@@ -1,0 +1,132 @@
+# Menu Screen - Video Game Title Screen Music
+# Coded for Sonic Pi
+# Dreamy, looping chiptune-inspired menu theme
+
+use_bpm 108
+
+live_loop :met do
+  sleep 1
+end
+
+# -- Chord progression: C maj -> G maj -> Am -> F maj (classic hopeful game feel)
+prog = [(chord :c4, :major), (chord :g3, :major), (chord :a3, :minor), (chord :f3, :major)]
+bass_notes = (ring :c3, :g2, :a2, :f2)
+
+# -- Warm pad foundation
+with_fx :reverb, mix: 0.6, room: 0.8 do
+  with_fx :lpf, cutoff: 95 do
+    live_loop :pad, sync: :met do
+      ##| stop
+      use_synth :hollow
+      prog.each do |c|
+        play c, amp: 0.35, attack: 0.5, sustain: 2.5, release: 1, cutoff: 85
+        sleep 4
+      end
+    end
+  end
+end
+
+# -- Gentle bass line
+with_fx :lpf, cutoff: 80 do
+  live_loop :bass, sync: :met do
+    ##| stop
+    use_synth :sine
+    bass_notes.each do |n|
+      play n, amp: 0.5, attack: 0.02, sustain: 1.5, release: 0.5
+      sleep 2
+      play n + 7, amp: 0.3, attack: 0.02, sustain: 0.8, release: 0.5
+      sleep 2
+    end
+  end
+end
+
+# -- Main melody (chiptune lead)
+melody_notes   = (ring :e5,:e5,:d5,:c5, :c5,:d5,:e5,:g5, :a5,:a5,:g5,:e5, :f5,:e5,:d5,:c5)
+melody_lengths = (ring 0.5,0.5,0.5,0.5, 0.5,0.5,1,1,    0.5,0.5,0.5,0.5, 0.5,0.5,1,1)
+
+with_fx :reverb, mix: 0.35, room: 0.5 do
+  with_fx :echo, phase: 0.75, decay: 3, mix: 0.15 do
+    live_loop :melody, sync: :met do
+      ##| stop
+      use_synth :chiplead
+      tick
+      play melody_notes.look, amp: 0.3, release: melody_lengths.look * 0.8,
+        cutoff: 115, slide: 0.05
+      sleep melody_lengths.look
+    end
+  end
+end
+
+# -- Counter-melody (higher register, sparse)
+counter_notes   = (ring :r,:g6,:r,:e6, :r,:d6,:r,:c6, :r,:a5,:r,:c6, :r,:r,:g5,:a5)
+counter_lengths = (ring 1, 1, 1, 1,    1, 1, 1, 1,    1, 1, 1, 1,    1, 1, 1, 1)
+
+with_fx :reverb, mix: 0.5, room: 0.7 do
+  live_loop :counter_melody, sync: :met do
+    ##| stop
+    use_synth :pretty_bell
+    tick
+    n = counter_notes.look
+    if n != :r
+      play n, amp: 0.12, release: 1.5, pan: (line -0.4, 0.4, steps: 16).mirror.look
+    end
+    sleep counter_lengths.look
+  end
+end
+
+# -- Soft arpeggiated sparkle
+with_fx :reverb, mix: 0.65, room: 0.85 do
+  live_loop :sparkle, sync: :met do
+    ##| stop
+    use_synth :beep
+    prog.each do |c|
+      notes = c + c.map { |n| n + 12 }
+      4.times do
+        play notes.choose, amp: 0.08, release: 0.4, pan: rrand(-0.6, 0.6)
+        sleep 0.5
+      end
+    end
+  end
+end
+
+# -- Light hi-hat tick (menu pulse)
+with_fx :hpf, cutoff: 110 do
+  with_fx :reverb, mix: 0.2 do
+    live_loop :tick_hat, sync: :met do
+      ##| stop
+      a = 0.15
+      sample :drum_cymbal_closed, amp: a, rate: 2.5, finish: 0.08
+      sleep 0.5
+      sample :drum_cymbal_closed, amp: a * 0.5, rate: 3, finish: 0.06
+      sleep 0.5
+    end
+  end
+end
+
+# -- Soft kick on downbeats
+live_loop :menu_kick, sync: :met do
+  ##| stop
+  sample :bd_haus, amp: 0.2, cutoff: 80
+  sleep 2
+end
+
+# -- Rising shimmer every 16 beats (transition feel)
+with_fx :reverb, mix: 0.8, room: 0.95 do
+  live_loop :rise, sync: :met do
+    ##| stop
+    use_synth :noise
+    play :c5, amp: 0.04, attack: 12, release: 4, cutoff: 60,
+      cutoff_slide: 12, cutoff_slide_shape: 3
+    sleep 16
+  end
+end
+
+# -- Coin / select SFX layer (very sparse, adds game flavor)
+with_fx :reverb, mix: 0.4 do
+  live_loop :coin_sfx, sync: :met do
+    ##| stop
+    sleep 7.5
+    sample :ambi_lunar_land, rate: 3, amp: 0.06, finish: 0.15
+    sleep 8.5
+  end
+end
