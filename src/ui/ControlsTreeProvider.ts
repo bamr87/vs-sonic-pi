@@ -105,6 +105,13 @@ const CONTROLS: ControlItem[] = [
     command: "sonicpi.openReference",
     group: "Resources",
   },
+  {
+    id: "openAudioStream",
+    label: "Listen (Audio Stream)",
+    icon: "unmute",
+    command: "sonicpi.openAudioStream",
+    group: "Resources",
+  },
 ];
 
 type TreeNode = GroupNode | ActionNode;

@@ -1,12 +1,14 @@
 import * as vscode from "vscode";
 import { join } from "path";
 import { ConfigManager } from "./config/ConfigManager.js";
+import { detectEnvironment } from "./config/environment.js";
 import { ConnectionManager } from "./connection/ConnectionManager.js";
 import { PortDiscovery } from "./connection/PortDiscovery.js";
 import { DaemonSpawner } from "./connection/DaemonSpawner.js";
 import { CommandHandler } from "./commands/index.js";
 import { LogManager } from "./log/LogManager.js";
 import { StatusBarManager } from "./ui/StatusBarManager.js";
+import { AudioStreamWebview } from "./ui/AudioStreamWebview.js";
 import { CompletionProvider } from "./language/CompletionProvider.js";
 import { HoverProvider } from "./language/HoverProvider.js";
 import { DiagnosticsProvider } from "./language/DiagnosticsProvider.js";
@@ -21,8 +23,11 @@ import sonicPiDataJson from "./data/sonic-pi-data.json";
 let connectionManager: ConnectionManager | undefined;
 
 export function activate(context: vscode.ExtensionContext): void {
+  const env = detectEnvironment();
   const config = new ConfigManager();
   context.subscriptions.push(config);
+
+  const sonicPiPath = config.sonicPiPath || env.sonicPiHome || undefined;
 
   const portDiscovery = new PortDiscovery({
     configSendPort: config.sendPort,
@@ -30,9 +35,7 @@ export function activate(context: vscode.ExtensionContext): void {
     configDaemonPort: config.daemonPort,
   });
 
-  const daemonSpawner = new DaemonSpawner(
-    config.sonicPiPath || undefined
-  );
+  const daemonSpawner = new DaemonSpawner(sonicPiPath);
   context.subscriptions.push(daemonSpawner);
 
   connectionManager = new ConnectionManager(
@@ -114,6 +117,13 @@ export function activate(context: vscode.ExtensionContext): void {
     })
   );
 
+  const audioStreamWebview = new AudioStreamWebview(env.audioStreamPort);
+  context.subscriptions.push(
+    vscode.commands.registerCommand("sonicpi.openAudioStream", () => {
+      audioStreamWebview.open();
+    })
+  );
+
   const selector: vscode.DocumentSelector = { language: "sonicpi" };
 
   context.subscriptions.push(
@@ -136,9 +146,24 @@ export function activate(context: vscode.ExtensionContext): void {
     logManager.logLevel = cfg.logLevel;
   });
 
+  let codespaceNotified = false;
   connectionManager.onDidChangeState((state) => {
     if (state === "connected") {
       logManager.show();
+
+      if (env.isCodespace && !codespaceNotified) {
+        codespaceNotified = true;
+        vscode.window
+          .showInformationMessage(
+            "Sonic Pi connected in Codespace. Open the audio stream to hear output.",
+            "Listen"
+          )
+          .then((choice) => {
+            if (choice === "Listen") {
+              vscode.commands.executeCommand("sonicpi.openAudioStream");
+            }
+          });
+      }
     }
   });
 

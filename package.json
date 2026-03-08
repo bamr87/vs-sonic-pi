@@ -31,6 +31,9 @@
     "onLanguage:sonicpi",
     "onView:sonicpi.tutorialTree"
   ],
+  "extensionKind": [
+    "workspace"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "languages": [
@@ -122,6 +125,11 @@
       {
         "command": "sonicpi.openExampleFile",
         "title": "Sonic Pi: Open Example File"
+      },
+      {
+        "command": "sonicpi.openAudioStream",
+        "title": "Sonic Pi: Listen (Audio Stream)",
+        "icon": "$(unmute)"
       }
     ],
     "menus": {
