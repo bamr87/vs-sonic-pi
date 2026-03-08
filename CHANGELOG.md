@@ -5,6 +5,27 @@ All notable changes to the **Sonic Pi for VS Code** extension will be documented
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **GitHub Codespaces support** — devcontainer with Sonic Pi server, SuperCollider, PulseAudio/JACK audio stack, and ffmpeg HTTP audio streaming
+- **Audio stream webview** — `Sonic Pi: Listen (Audio Stream)` command and Controls sidebar entry for hearing output in headless environments
+- **Environment detection** — auto-detect Codespaces and remote containers via environment variables (`SONIC_PI_HOME`, `AUDIO_STREAM_PORT`)
+- **Copilot agent and prompt templates** — contributor agent, contribution workflow instructions, and reusable prompt files
+
+### Changed
+
+- Port discovery now uses a saved `port-info` file instead of parsing `spider.log`
+- `DaemonSpawner` checks `SONIC_PI_HOME` environment variable for daemon path
+- `ConnectionManager` tries existing port-info file before spawning a new daemon
+- Extension declared as `extensionKind: ["workspace"]` for remote support
+
+### Fixed
+
+- Mario Overworld example timing: all loops now align to 24 beats (6 bars of 4/4)
+- Tests mock `findDaemonPath` to prevent side effects from host Sonic Pi installs
+
 ## [0.1.0] - 2026-03-05
 
 ### Added
