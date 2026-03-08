@@ -57,6 +57,61 @@ export class ConnectionManager implements vscode.Disposable {
     this._onDidChangeState.fire(state);
   }
 
+  private async connectWithPorts(ports: PortMap): Promise<boolean> {
+    this._portMap = ports;
+
+    this._transport = new OscTransport({
+      host: this._config.host,
+      sendPort: ports.guiSendToServer,
+      listenPort: ports.guiListenToServer,
+      token: ports.token,
+    });
+
+    await this._transport.open();
+
+    this._messageDisposables.push(
+      this._transport.onAnyMessage((msg) => {
+        this._onDidReceiveMessage.fire(msg);
+      })
+    );
+
+    this._messageDisposables.push(
+      this._transport.onMessage("/exited", () => {
+        this.disconnect();
+      })
+    );
+
+    this._messageDisposables.push(
+      this._transport.onMessage("/exited-with-boot-error", () => {
+        vscode.window.showErrorMessage(
+          "Sonic Pi exited with a boot error. Check the Sonic Pi log for details."
+        );
+        this.disconnect();
+      })
+    );
+
+    const ackReceived = await this.pingWithRetry();
+
+    if (!ackReceived) {
+      await this._transport.dispose();
+      this._transport = undefined;
+      this._portMap = undefined;
+      return false;
+    }
+
+    if (ports.daemon > 0) {
+      this._heartbeat = new Heartbeat(
+        this._config.host,
+        ports.daemon,
+        ports.token,
+        this._config.heartbeatInterval
+      );
+      this._heartbeat.start();
+    }
+
+    return true;
+  }
+
   async connect(): Promise<void> {
     if (
       this._state === ConnectionState.Connected ||
@@ -69,12 +124,14 @@ export class ConnectionManager implements vscode.Disposable {
 
     try {
       let ports: PortMap;
+      let triedPortFile = false;
 
       // Check if an existing daemon left a port-info file
       const existingPorts = this._portDiscovery.discoverFromPortFile();
 
       if (existingPorts) {
         ports = existingPorts;
+        triedPortFile = true;
       } else if (this._daemonSpawner.findDaemonPath() && !this._daemonSpawner.isRunning) {
         try {
           ports = await this._daemonSpawner.spawn();
@@ -85,55 +142,32 @@ export class ConnectionManager implements vscode.Disposable {
         ports = this._portDiscovery.discover();
       }
 
-      this._portMap = ports;
+      let connected = await this.connectWithPorts(ports);
 
-      this._transport = new OscTransport({
-        host: this._config.host,
-        sendPort: ports.guiSendToServer,
-        listenPort: ports.guiListenToServer,
-        token: ports.token,
-      });
+      // If persisted ports are stale, clear file and retry with fresh discovery/spawn.
+      if (!connected && triedPortFile) {
+        this._portDiscovery.clearDiscoveredPortInfo();
 
-      await this._transport.open();
+        if (this._daemonSpawner.findDaemonPath() && !this._daemonSpawner.isRunning) {
+          try {
+            ports = await this._daemonSpawner.spawn();
+          } catch {
+            ports = this._portDiscovery.discoverFromConfigAndDefaults();
+          }
+        } else {
+          ports = this._portDiscovery.discoverFromConfigAndDefaults();
+        }
 
-      this._messageDisposables.push(
-        this._transport.onAnyMessage((msg) => {
-          this._onDidReceiveMessage.fire(msg);
-        })
-      );
+        connected = await this.connectWithPorts(ports);
+      }
 
-      this._transport.onMessage("/exited", () => {
-        this.disconnect();
-      });
-
-      this._transport.onMessage("/exited-with-boot-error", () => {
-        vscode.window.showErrorMessage(
-          "Sonic Pi exited with a boot error. Check the Sonic Pi log for details."
-        );
-        this.disconnect();
-      });
-
-      const ackReceived = await this.pingWithRetry();
-
-      if (!ackReceived) {
-        await this._transport.dispose();
-        this._transport = undefined;
+      if (!connected) {
         this.setState(ConnectionState.Disconnected);
         vscode.window.showErrorMessage(
           "Could not connect to Sonic Pi — no response to ping. " +
             "Is Sonic Pi running?"
         );
         return;
-      }
-
-      if (ports.daemon > 0) {
-        this._heartbeat = new Heartbeat(
-          this._config.host,
-          ports.daemon,
-          ports.token,
-          this._config.heartbeatInterval
-        );
-        this._heartbeat.start();
       }
 
       this.setState(ConnectionState.Connected);

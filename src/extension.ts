@@ -118,6 +118,7 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   const audioStreamWebview = new AudioStreamWebview(env.audioStreamPort);
+  context.subscriptions.push(audioStreamWebview);
   context.subscriptions.push(
     vscode.commands.registerCommand("sonicpi.openAudioStream", () => {
       audioStreamWebview.open();

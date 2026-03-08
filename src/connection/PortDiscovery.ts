@@ -1,4 +1,10 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
+import {
+  readFileSync,
+  writeFileSync,
+  existsSync,
+  mkdirSync,
+  unlinkSync,
+} from "fs";
 import { join } from "path";
 import { homedir } from "os";
 import { PortMap } from "../types/sonicpi.js";
@@ -56,6 +62,20 @@ export function readPortInfo(sonicPiHome: string): PortMap | undefined {
   }
 }
 
+/**
+ * Delete a saved port-info file if it exists.
+ */
+export function clearPortInfo(sonicPiHome: string): void {
+  const filePath = join(sonicPiHome, ".sonic-pi", PORT_INFO_FILE);
+  if (!existsSync(filePath)) return;
+
+  try {
+    unlinkSync(filePath);
+  } catch {
+    // Best-effort cleanup.
+  }
+}
+
 export interface PortDiscoveryOptions {
   configSendPort?: number;
   configListenPort?: number;
@@ -76,7 +96,7 @@ export class PortDiscovery {
   discoverFromPortFile(): PortMap | undefined {
     const candidates = [
       process.env.SONIC_PI_HOME,
-      join(homedir()),
+      homedir(),
     ].filter(Boolean) as string[];
 
     for (const base of candidates) {
@@ -85,6 +105,20 @@ export class PortDiscovery {
     }
 
     return undefined;
+  }
+
+  /**
+   * Clear discovered port-info files from known locations.
+   */
+  clearDiscoveredPortInfo(): void {
+    const candidates = [
+      process.env.SONIC_PI_HOME,
+      homedir(),
+    ].filter(Boolean) as string[];
+
+    for (const base of candidates) {
+      clearPortInfo(base);
+    }
   }
 
   /**
@@ -115,6 +149,19 @@ export class PortDiscovery {
   }
 
   /**
+   * Build a PortMap from config/defaults without reading persisted files.
+   */
+  discoverFromConfigAndDefaults(): PortMap {
+    const cfg = this.fromConfig();
+    const defs = this.defaults();
+
+    return {
+      ...defs,
+      ...cfg,
+    } as PortMap;
+  }
+
+  /**
    * 4-tier discovery strategy:
    * 1. Daemon STDOUT (if provided)
    * 2. Saved port-info file
@@ -130,12 +177,6 @@ export class PortDiscovery {
     const fromFile = this.discoverFromPortFile();
     if (fromFile) return fromFile;
 
-    const cfg = this.fromConfig();
-    const defs = this.defaults();
-
-    return {
-      ...defs,
-      ...cfg,
-    } as PortMap;
+    return this.discoverFromConfigAndDefaults();
   }
 }

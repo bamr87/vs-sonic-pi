@@ -5,6 +5,16 @@ export class AudioStreamWebview implements vscode.Disposable {
 
   constructor(private readonly _port: number) {}
 
+  private static makeNonce(): string {
+    return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+  }
+
+  private getSafePort(): number {
+    return Number.isInteger(this._port) && this._port > 0 && this._port <= 65535
+      ? this._port
+      : 8080;
+  }
+
   open(): void {
     if (this._panel) {
       this._panel.reveal();
@@ -26,13 +36,15 @@ export class AudioStreamWebview implements vscode.Disposable {
   }
 
   private renderHtml(): string {
-    const streamUrl = `http://localhost:${this._port}`;
+    const streamUrl = `http://localhost:${this.getSafePort()}`;
+    const nonce = AudioStreamWebview.makeNonce();
 
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-${nonce}'; media-src http://localhost:*; img-src data:;">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -147,7 +159,7 @@ export class AudioStreamWebview implements vscode.Disposable {
     </div>
   </div>
 
-  <script>
+  <script nonce="${nonce}">
     let audio = null;
     let playing = false;
     const streamUrl = "${streamUrl}";

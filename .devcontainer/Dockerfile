@@ -85,6 +85,6 @@ RUN chmod +x /usr/local/bin/start-audio.sh
 
 # ── Log directories needed by Sonic Pi daemon ───────────────────────
 RUN mkdir -p ${SONIC_PI_DIR}/.sonic-pi/log \
-    && chmod -R 777 ${SONIC_PI_DIR}/.sonic-pi
+    && chmod -R 775 ${SONIC_PI_DIR}/.sonic-pi
 
 ENV SONIC_PI_HOME=${SONIC_PI_DIR}

@@ -52,7 +52,7 @@ if [ "$AUDIO_STREAM_ENABLED" = "true" ] && command -v ffmpeg >/dev/null 2>&1; th
       -f pulse -i virtual_output.monitor \
       -ac "$CHANNELS" -ar "$SAMPLE_RATE" \
       -f mp3 -b:a 128k \
-      -listen 1 "http://0.0.0.0:${AUDIO_STREAM_PORT}" &
+      -listen 1 "http://127.0.0.1:${AUDIO_STREAM_PORT}" &
     disown
     log "Audio stream available at http://localhost:${AUDIO_STREAM_PORT}"
   else
