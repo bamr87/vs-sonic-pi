@@ -20,11 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DaemonSpawner` checks `SONIC_PI_HOME` environment variable for daemon path
 - `ConnectionManager` tries existing port-info file before spawning a new daemon
 - Extension declared as `extensionKind: ["workspace"]` for remote support
+- Added `docs/10-codespaces-support.md` architecture documentation for remote runtime and streaming
 
 ### Fixed
 
 - Mario Overworld example timing: all loops now align to 24 beats (6 bars of 4/4)
 - Tests mock `findDaemonPath` to prevent side effects from host Sonic Pi installs
+- Audio stream webview now applies CSP + nonce script policy and validates stream port values
+- Connection recovery now clears stale `port-info` and retries with fresh discovery when initial ping fails
 
 ## [0.1.0] - 2026-03-05
 
