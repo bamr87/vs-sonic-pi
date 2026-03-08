@@ -65,7 +65,7 @@ The extension auto-connects to Sonic Pi when you open a `.spi` file.
 ## Requirements
 
 - **VS Code** 1.109+
-- **Sonic Pi** v4.x running on the same machine
+- **Sonic Pi** v4.x running on the same machine (or use GitHub Codespaces — see below)
 
 ---
 
@@ -116,6 +116,54 @@ The extension includes the complete Sonic Pi tutorial:
 3. Click a chapter to read it in a styled webview
 
 Topics covered: synths, samples, FX, randomisation, programming structures, live coding, data structures, state, MIDI, OSC, multichannel audio, and more.
+
+---
+
+## GitHub Codespaces
+
+You can use this extension entirely in the cloud with [GitHub Codespaces](https://github.com/features/codespaces) — no local Sonic Pi installation required. The included devcontainer builds a full Sonic Pi server (Ruby daemon, SuperCollider, audio stack) inside the container.
+
+### Getting Started in Codespaces
+
+1. Open this repository on GitHub
+2. Click **Code > Codespaces > Create codespace on main**
+3. Wait for the container to build (first time takes ~5-10 minutes; subsequent starts are instant)
+4. Create a `.spi` file and start coding — the extension auto-connects to the Sonic Pi server
+
+### Audio Output
+
+Since Codespaces run in headless containers with no speakers, audio is streamed over HTTP:
+
+- On first connect, a notification offers to open the **audio stream player**
+- You can also run **Sonic Pi: Listen (Audio Stream)** from the Command Palette or the Controls sidebar
+- The player opens a webview that streams MP3 audio from the container via PulseAudio + ffmpeg
+- Alternatively, open the forwarded port (8080) directly in your browser
+
+### How It Works
+
+The devcontainer installs:
+- **PulseAudio** with a virtual null sink (no hardware needed)
+- **JACK** with a dummy audio driver
+- **SuperCollider server** (scsynth) for sound synthesis
+- **Sonic Pi server** built from source (Ruby daemon + Tau/Erlang)
+- **ffmpeg** to encode and stream audio over HTTP
+
+The extension detects the Codespace environment automatically and configures the Sonic Pi path, audio stream port, and connection settings.
+
+### Known Limitations
+
+- **Audio latency**: Expect 200-500ms delay between running code and hearing sound. This is fine for composition but not ideal for live performance.
+- **No MIDI**: MIDI input/output is not available in Codespaces.
+- **Container size**: The full audio stack makes the container ~2-3 GB. Use Codespace prebuilds to avoid rebuilding on every start.
+- **First build time**: Initial container creation takes 5-10 minutes due to building Sonic Pi from source.
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SONIC_PI_HOME` | `/opt/sonic-pi` | Path to Sonic Pi installation |
+| `AUDIO_STREAM_PORT` | `8080` | HTTP port for audio streaming |
+| `AUDIO_STREAM_ENABLED` | `true` | Set to `false` to disable audio streaming |
 
 ---
 
