@@ -70,7 +70,12 @@ export class ConnectionManager implements vscode.Disposable {
     try {
       let ports: PortMap;
 
-      if (this._daemonSpawner.findDaemonPath() && !this._daemonSpawner.isRunning) {
+      // Check if an existing daemon left a port-info file
+      const existingPorts = this._portDiscovery.discoverFromPortFile();
+
+      if (existingPorts) {
+        ports = existingPorts;
+      } else if (this._daemonSpawner.findDaemonPath() && !this._daemonSpawner.isRunning) {
         try {
           ports = await this._daemonSpawner.spawn();
         } catch {

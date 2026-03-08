@@ -3,19 +3,21 @@ import { existsSync } from "fs";
 import { platform } from "os";
 import * as vscode from "vscode";
 import { PortMap } from "../types/sonicpi.js";
-import { parseDaemonOutput } from "./PortDiscovery.js";
+import { parseDaemonOutput, savePortInfo } from "./PortDiscovery.js";
+
+const DAEMON_RB_SUFFIX = "app/server/ruby/bin/daemon.rb";
 
 const PLATFORM_PATHS: Record<string, string[]> = {
   darwin: [
-    "/Applications/Sonic Pi.app/Contents/Resources/app/server/ruby/bin/daemon.rb",
+    `/Applications/Sonic Pi.app/Contents/Resources/${DAEMON_RB_SUFFIX}`,
   ],
   linux: [
-    "/usr/lib/sonic-pi/app/server/ruby/bin/daemon.rb",
-    "/opt/sonic-pi/app/server/ruby/bin/daemon.rb",
+    `/usr/lib/sonic-pi/${DAEMON_RB_SUFFIX}`,
+    `/opt/sonic-pi/${DAEMON_RB_SUFFIX}`,
   ],
   win32: [
-    "C:\\Program Files\\Sonic Pi\\app\\server\\ruby\\bin\\daemon.rb",
-    "C:\\Program Files (x86)\\Sonic Pi\\app\\server\\ruby\\bin\\daemon.rb",
+    `C:\\Program Files\\Sonic Pi\\${DAEMON_RB_SUFFIX.replace(/\//g, "\\")}`,
+    `C:\\Program Files (x86)\\Sonic Pi\\${DAEMON_RB_SUFFIX.replace(/\//g, "\\")}`,
   ],
 };
 
@@ -29,8 +31,14 @@ export class DaemonSpawner implements vscode.Disposable {
     if (this._customPath) {
       const daemonRb = this._customPath.endsWith("daemon.rb")
         ? this._customPath
-        : `${this._customPath}/app/server/ruby/bin/daemon.rb`;
+        : `${this._customPath}/${DAEMON_RB_SUFFIX}`;
       if (existsSync(daemonRb)) return daemonRb;
+    }
+
+    const envHome = process.env.SONIC_PI_HOME;
+    if (envHome) {
+      const envDaemon = `${envHome}/${DAEMON_RB_SUFFIX}`;
+      if (existsSync(envDaemon)) return envDaemon;
     }
 
     const paths = PLATFORM_PATHS[platform()] || [];
@@ -83,6 +91,13 @@ export class DaemonSpawner implements vscode.Disposable {
           const ports = parseDaemonOutput(trimmed);
           if (ports) {
             resolved = true;
+            // Persist ports so reconnection can find a running daemon
+            const sonicPiHome =
+              this._customPath ||
+              process.env.SONIC_PI_HOME;
+            if (sonicPiHome) {
+              savePortInfo(sonicPiHome, trimmed);
+            }
             resolve(ports);
             return;
           }

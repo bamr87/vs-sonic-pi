@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
 import { PortMap } from "../types/sonicpi.js";
@@ -26,6 +26,36 @@ export function parseDaemonOutput(line: string): PortMap | undefined {
   };
 }
 
+/** Well-known filename where ports are persisted after daemon spawn. */
+const PORT_INFO_FILE = "port-info";
+
+/**
+ * Save a PortMap to a port-info file in the given Sonic Pi home directory.
+ */
+export function savePortInfo(sonicPiHome: string, portLine: string): void {
+  const dir = join(sonicPiHome, ".sonic-pi");
+  try {
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, PORT_INFO_FILE), portLine.trim() + "\n");
+  } catch {
+    // Best-effort; file may not be writable
+  }
+}
+
+/**
+ * Read a saved port-info file and return ports, or undefined.
+ */
+export function readPortInfo(sonicPiHome: string): PortMap | undefined {
+  const filePath = join(sonicPiHome, ".sonic-pi", PORT_INFO_FILE);
+  if (!existsSync(filePath)) return undefined;
+  try {
+    const content = readFileSync(filePath, "utf-8").trim();
+    return parseDaemonOutput(content);
+  } catch {
+    return undefined;
+  }
+}
+
 export interface PortDiscoveryOptions {
   configSendPort?: number;
   configListenPort?: number;
@@ -40,38 +70,18 @@ export class PortDiscovery {
   }
 
   /**
-   * Try to discover ports from the Sonic Pi log directory.
-   * The daemon writes a spider.log that may contain port info.
+   * Try to discover ports from a saved port-info file.
+   * Checks SONIC_PI_HOME and ~/.sonic-pi.
    */
-  discoverFromLogs(): PortMap | undefined {
-    const logDir = join(homedir(), ".sonic-pi", "log");
-    const spiderLog = join(logDir, "spider.log");
+  discoverFromPortFile(): PortMap | undefined {
+    const candidates = [
+      process.env.SONIC_PI_HOME,
+      join(homedir()),
+    ].filter(Boolean) as string[];
 
-    if (!existsSync(spiderLog)) return undefined;
-
-    try {
-      const content = readFileSync(spiderLog, "utf-8");
-      const lines = content.split("\n");
-
-      for (const line of lines) {
-        const match = line.match(
-          /Ports:\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/
-        );
-        if (match) {
-          return {
-            daemon: Number(match[1]),
-            guiListenToServer: Number(match[2]),
-            guiSendToServer: Number(match[3]),
-            scsynth: Number(match[4]),
-            oscCues: Number(match[5]),
-            tauApi: Number(match[6]),
-            tauPhx: Number(match[7]),
-            token: Number(match[8]),
-          };
-        }
-      }
-    } catch {
-      // Log file unreadable
+    for (const base of candidates) {
+      const ports = readPortInfo(base);
+      if (ports) return ports;
     }
 
     return undefined;
@@ -107,7 +117,7 @@ export class PortDiscovery {
   /**
    * 4-tier discovery strategy:
    * 1. Daemon STDOUT (if provided)
-   * 2. Log files
+   * 2. Saved port-info file
    * 3. User config
    * 4. Defaults
    */
@@ -117,8 +127,8 @@ export class PortDiscovery {
       if (parsed) return parsed;
     }
 
-    const fromLogs = this.discoverFromLogs();
-    if (fromLogs) return fromLogs;
+    const fromFile = this.discoverFromPortFile();
+    if (fromFile) return fromFile;
 
     const cfg = this.fromConfig();
     const defs = this.defaults();
