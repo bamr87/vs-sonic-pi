@@ -10,6 +10,11 @@ import { ConfigManager } from "../config/ConfigManager.js";
 const MAX_PING_RETRIES = 5;
 const PING_TIMEOUT_MS = 1000;
 
+export interface ConnectOptions {
+  /** Suppress error popups (used for auto-connect on activation). */
+  quiet?: boolean;
+}
+
 export class ConnectionManager implements vscode.Disposable {
   private _state = ConnectionState.Disconnected;
   private _transport: OscTransport | undefined;
@@ -57,6 +62,19 @@ export class ConnectionManager implements vscode.Disposable {
     this._onDidChangeState.fire(state);
   }
 
+  private teardownTransport(): Promise<void> {
+    for (const d of this._messageDisposables) {
+      d.dispose();
+    }
+    this._messageDisposables = [];
+
+    const transport = this._transport;
+    this._transport = undefined;
+    this._portMap = undefined;
+
+    return transport ? transport.dispose() : Promise.resolve();
+  }
+
   private async connectWithPorts(ports: PortMap): Promise<boolean> {
     this._portMap = ports;
 
@@ -93,9 +111,7 @@ export class ConnectionManager implements vscode.Disposable {
     const ackReceived = await this.pingWithRetry();
 
     if (!ackReceived) {
-      await this._transport.dispose();
-      this._transport = undefined;
-      this._portMap = undefined;
+      await this.teardownTransport();
       return false;
     }
 
@@ -112,7 +128,7 @@ export class ConnectionManager implements vscode.Disposable {
     return true;
   }
 
-  async connect(): Promise<void> {
+  async connect(options: ConnectOptions = {}): Promise<void> {
     if (
       this._state === ConnectionState.Connected ||
       this._state === ConnectionState.Connecting
@@ -163,19 +179,24 @@ export class ConnectionManager implements vscode.Disposable {
 
       if (!connected) {
         this.setState(ConnectionState.Disconnected);
-        vscode.window.showErrorMessage(
-          "Could not connect to Sonic Pi — no response to ping. " +
-            "Is Sonic Pi running?"
-        );
+        if (!options.quiet) {
+          vscode.window.showErrorMessage(
+            "Could not connect to Sonic Pi — no response to ping. " +
+              "Is Sonic Pi running?"
+          );
+        }
         return;
       }
 
       this.setState(ConnectionState.Connected);
     } catch (err) {
+      await this.teardownTransport();
       this.setState(ConnectionState.Disconnected);
-      const msg =
-        err instanceof Error ? err.message : "Unknown connection error";
-      vscode.window.showErrorMessage(`Sonic Pi connection failed: ${msg}`);
+      if (!options.quiet) {
+        const msg =
+          err instanceof Error ? err.message : "Unknown connection error";
+        vscode.window.showErrorMessage(`Sonic Pi connection failed: ${msg}`);
+      }
     }
   }
 
@@ -183,26 +204,29 @@ export class ConnectionManager implements vscode.Disposable {
     if (!this._transport) return false;
 
     for (let attempt = 0; attempt < MAX_PING_RETRIES; attempt++) {
-      const gotAck = await new Promise<boolean>((resolve) => {
-        const timeout = setTimeout(() => resolve(false), PING_TIMEOUT_MS);
-
-        const disposable = this._transport!.onMessage("/ack", () => {
-          clearTimeout(timeout);
-          disposable.dispose();
-          resolve(true);
-        });
-
-        this._transport!.send("/ping", "vscode-init").catch(() => {
-          clearTimeout(timeout);
-          disposable.dispose();
-          resolve(false);
-        });
-      });
-
-      if (gotAck) return true;
+      const ack = await this._transport.request(
+        "/ping",
+        "/ack",
+        PING_TIMEOUT_MS,
+        "vscode-init"
+      );
+      if (ack) return true;
     }
 
     return false;
+  }
+
+  /**
+   * Tear down the current daemon and boot a fresh one. Needed when the
+   * daemon's audio server is stuck on a stale output device: scsynth keeps
+   * the device it opened at boot, so switching the system output (e.g. from
+   * a monitor to speakers) silences Sonic Pi until the daemon restarts.
+   */
+  async restartDaemon(options: ConnectOptions = {}): Promise<void> {
+    await this.disconnect();
+    this._daemonSpawner.kill();
+    this._portDiscovery.clearDiscoveredPortInfo();
+    await this.connect(options);
   }
 
   async disconnect(): Promise<void> {
@@ -218,17 +242,8 @@ export class ConnectionManager implements vscode.Disposable {
     this._heartbeat?.dispose();
     this._heartbeat = undefined;
 
-    for (const d of this._messageDisposables) {
-      d.dispose();
-    }
-    this._messageDisposables = [];
+    await this.teardownTransport();
 
-    if (this._transport) {
-      await this._transport.dispose();
-      this._transport = undefined;
-    }
-
-    this._portMap = undefined;
     this.setState(ConnectionState.Disconnected);
   }
 

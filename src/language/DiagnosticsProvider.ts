@@ -4,6 +4,7 @@ import { OscMessage } from "../types/osc.js";
 export class DiagnosticsProvider implements vscode.Disposable {
   private readonly _collection: vscode.DiagnosticCollection;
   private _disposables: vscode.Disposable[] = [];
+  private _lastRunUri: vscode.Uri | undefined;
 
   constructor() {
     this._collection =
@@ -16,6 +17,16 @@ export class DiagnosticsProvider implements vscode.Disposable {
         }
       })
     );
+  }
+
+  /**
+   * Called when code is (re-)run: stale errors from the previous run are
+   * cleared and incoming server errors attach to the document that ran,
+   * not whichever editor happens to be focused when the error arrives.
+   */
+  beginRun(uri: vscode.Uri): void {
+    this._lastRunUri = uri;
+    this._collection.clear();
   }
 
   handleMessage(msg: OscMessage): void {
@@ -52,15 +63,22 @@ export class DiagnosticsProvider implements vscode.Disposable {
     return match ? Number(match[1]) : fallback;
   }
 
+  private targetUri(): vscode.Uri | undefined {
+    if (this._lastRunUri) return this._lastRunUri;
+    const editor = vscode.window.activeTextEditor;
+    return editor?.document.languageId === "sonicpi"
+      ? editor.document.uri
+      : undefined;
+  }
+
   private addDiagnostic(
     message: string,
     line: number,
     severity: vscode.DiagnosticSeverity
   ): void {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor || editor.document.languageId !== "sonicpi") return;
+    const uri = this.targetUri();
+    if (!uri) return;
 
-    const uri = editor.document.uri;
     const lineNum = Math.max(0, line - 1);
     const range = new vscode.Range(lineNum, 0, lineNum, 1000);
     const diagnostic = new vscode.Diagnostic(range, message, severity);

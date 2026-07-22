@@ -12,6 +12,7 @@ import { AudioStreamWebview } from "./ui/AudioStreamWebview.js";
 import { CompletionProvider } from "./language/CompletionProvider.js";
 import { HoverProvider } from "./language/HoverProvider.js";
 import { DiagnosticsProvider } from "./language/DiagnosticsProvider.js";
+import { LiveLoopLensProvider } from "./language/LiveLoopLens.js";
 import { TutorialTreeProvider } from "./ui/TutorialTreeProvider.js";
 import { TutorialWebview } from "./ui/TutorialWebview.js";
 import { ControlsTreeProvider } from "./ui/ControlsTreeProvider.js";
@@ -35,7 +36,9 @@ export function activate(context: vscode.ExtensionContext): void {
     configDaemonPort: config.daemonPort,
   });
 
-  const daemonSpawner = new DaemonSpawner(sonicPiPath);
+  const daemonSpawner = new DaemonSpawner(sonicPiPath, {
+    audioInputs: config.audioInputs,
+  });
   context.subscriptions.push(daemonSpawner);
 
   connectionManager = new ConnectionManager(
@@ -55,11 +58,35 @@ export function activate(context: vscode.ExtensionContext): void {
   connectionManager.onDidReceiveMessage((msg) => {
     logManager.handleMessage(msg);
     diagnosticsProvider.handleMessage(msg);
+
+    // The daemon reports which audio devices scsynth opened. Surface the
+    // output device: scsynth keeps the device that was the system default
+    // at boot, so sound can silently go to a speakerless monitor.
+    if (msg.address === "/scsynth/info") {
+      const info = String(msg.args[0] ?? "");
+      const out = info
+        .split("\n")
+        .find((line) => line.startsWith("Out"));
+      if (out) {
+        vscode.window
+          .showInformationMessage(
+            `Sonic Pi audio — ${out}. Wrong device? Change the system ` +
+              `output, then restart the daemon.`,
+            "Restart Daemon"
+          )
+          .then((choice) => {
+            if (choice === "Restart Daemon") {
+              vscode.commands.executeCommand("sonicpi.restartDaemon");
+            }
+          });
+      }
+    }
   });
 
   const commandHandler = new CommandHandler(
     connectionManager,
-    context.extensionPath
+    diagnosticsProvider,
+    logManager
   );
   commandHandler.registerAll(context);
   context.subscriptions.push(commandHandler);
@@ -143,6 +170,13 @@ export function activate(context: vscode.ExtensionContext): void {
     )
   );
 
+  context.subscriptions.push(
+    vscode.languages.registerCodeLensProvider(
+      selector,
+      new LiveLoopLensProvider()
+    )
+  );
+
   config.onDidChangeConfig((cfg) => {
     logManager.logLevel = cfg.logLevel;
   });
@@ -169,7 +203,9 @@ export function activate(context: vscode.ExtensionContext): void {
   });
 
   if (config.autoConnect) {
-    connectionManager.connect();
+    // Quiet: don't pop an error on activation when Sonic Pi isn't running;
+    // the status bar shows the state and a click retries loudly.
+    connectionManager.connect({ quiet: true });
   }
 
   console.log("Sonic Pi extension activated");

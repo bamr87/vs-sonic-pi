@@ -32,6 +32,14 @@ export class AudioStreamWebview implements vscode.Disposable {
       this._panel = undefined;
     });
 
+    this._panel.webview.onDidReceiveMessage((message: { command?: string }) => {
+      if (message?.command === "openExternal") {
+        vscode.env.openExternal(
+          vscode.Uri.parse(`http://localhost:${this.getSafePort()}`)
+        );
+      }
+    });
+
     this._panel.webview.html = this.renderHtml();
   }
 
@@ -145,8 +153,8 @@ export class AudioStreamWebview implements vscode.Disposable {
       </div>
 
       <div class="controls">
-        <button class="btn btn-primary" id="playBtn" onclick="togglePlay()">Listen</button>
-        <button class="btn btn-secondary" id="extBtn" onclick="openExternal()">Open in Browser</button>
+        <button class="btn btn-primary" id="playBtn">Listen</button>
+        <button class="btn btn-secondary" id="extBtn">Open in Browser</button>
       </div>
 
       <div class="info">
@@ -160,9 +168,14 @@ export class AudioStreamWebview implements vscode.Disposable {
   </div>
 
   <script nonce="${nonce}">
+    const vscodeApi = acquireVsCodeApi();
     let audio = null;
     let playing = false;
     const streamUrl = "${streamUrl}";
+
+    // CSP blocks inline onclick handlers; wire buttons here instead.
+    document.getElementById("playBtn").addEventListener("click", togglePlay);
+    document.getElementById("extBtn").addEventListener("click", openExternal);
 
     function togglePlay() {
       if (playing) {
@@ -218,10 +231,7 @@ export class AudioStreamWebview implements vscode.Disposable {
     }
 
     function openExternal() {
-      const a = document.createElement("a");
-      a.href = streamUrl;
-      a.target = "_blank";
-      a.click();
+      vscodeApi.postMessage({ command: "openExternal" });
     }
 
     function setStatus(state, text) {

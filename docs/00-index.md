@@ -29,7 +29,8 @@ extension.ts (entry point)
     │       ├── Snippets
     │       ├── CompletionProvider
     │       ├── HoverProvider
-    │       └── DiagnosticsProvider
+    │       ├── DiagnosticsProvider
+    │       └── LiveLoopLensProvider
     │
     ├── LogManager ················· 05-log-manager.md
     │       └── LogFormatter

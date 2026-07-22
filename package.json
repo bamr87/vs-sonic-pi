@@ -27,10 +27,7 @@
     "synthesis"
   ],
   "icon": "images/sonic-pi-icon.png",
-  "activationEvents": [
-    "onLanguage:sonicpi",
-    "onView:sonicpi.tutorialTree"
-  ],
+  "activationEvents": [],
   "extensionKind": [
     "workspace"
   ],
@@ -84,6 +81,11 @@
         "icon": "$(debug-disconnect)"
       },
       {
+        "command": "sonicpi.restartDaemon",
+        "title": "Sonic Pi: Restart Daemon",
+        "icon": "$(refresh)"
+      },
+      {
         "command": "sonicpi.openExamples",
         "title": "Sonic Pi: Open Examples",
         "icon": "$(file-code)"
@@ -130,6 +132,16 @@
         "command": "sonicpi.openAudioStream",
         "title": "Sonic Pi: Listen (Audio Stream)",
         "icon": "$(unmute)"
+      },
+      {
+        "command": "sonicpi.newLoop",
+        "title": "Sonic Pi: New Loop File",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "sonicpi.openLog",
+        "title": "Sonic Pi: Open Log",
+        "icon": "$(output)"
       }
     ],
     "menus": {
@@ -325,6 +337,11 @@
           "default": "",
           "description": "Path to Sonic Pi installation (empty = auto-detect)."
         },
+        "sonicpi.audioInputs": {
+          "type": "boolean",
+          "default": false,
+          "description": "Open audio inputs on the Sonic Pi audio server (needed for live_audio). Off by default: requesting the microphone from VS Code triggers a macOS permission prompt and can silence output when input/output sample rates differ. Restart the daemon after changing."
+        },
         "sonicpi.logLevel": {
           "type": "string",
           "default": "info",
@@ -363,6 +380,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/node": "^20.19.43",
     "@types/vscode": "^1.109.0",
     "@vscode/test-electron": "^2.5.2",
     "esbuild": "^0.27.3",

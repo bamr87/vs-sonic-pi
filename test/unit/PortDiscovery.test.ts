@@ -1,7 +1,17 @@
 import { mkdtempSync, rmSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+
+// Isolate from the host machine: a live ~/.sonic-pi/port-info (present
+// whenever Sonic Pi is running locally) must not leak into discovery tests.
+vi.mock("os", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("os")>();
+  return {
+    ...actual,
+    homedir: () => join(actual.tmpdir(), "vs-sonicpi-nonexistent-home"),
+  };
+});
 import {
   parseDaemonOutput,
   PortDiscovery,

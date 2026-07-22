@@ -100,10 +100,18 @@ See the full [User Manual](docs/user-manual.md) for detailed configuration examp
 Open the Command Palette (`Ctrl+Shift+P`) and type "Sonic Pi" to see all available commands:
 
 - **Run** / **Run Selection** / **Stop**
+- **New Loop File** — opens a ready-to-run starter file with two synced live loops
 - **Connect** / **Disconnect**
 - **Open Tutorial** / **Open Examples**
 - **Beautify Buffer**
+- **Open Log**
 - **Start Recording** / **Stop Recording** / **Save Recording**
+
+### Run loops individually
+
+Every `live_loop` in a `.spi` file gets a **▶ Run loop** CodeLens above it.
+Click it to send just that loop to Sonic Pi — tweak one loop and re-send it
+while the rest of your music keeps playing.
 
 ---
 

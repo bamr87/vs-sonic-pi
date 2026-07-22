@@ -1,3 +1,5 @@
+import { LogLevel } from "../types/sonicpi.js";
+
 export const LOG_PREFIXES: Record<number, string> = {
   0: "=>",
   1: " ",
@@ -7,6 +9,25 @@ export const LOG_PREFIXES: Record<number, string> = {
   5: "[error]",
   6: "[debug]",
 };
+
+/**
+ * A /log/multi_message envelope mixes message types; each entry is filtered
+ * against the configured log level individually so errors and warnings
+ * survive even when info output is suppressed.
+ */
+export const MESSAGE_TYPE_LEVELS: Record<number, LogLevel> = {
+  0: "info",
+  1: "info",
+  2: "info",
+  3: "info",
+  4: "warning",
+  5: "error",
+  6: "debug",
+};
+
+export function levelForMessageType(type: number): LogLevel {
+  return MESSAGE_TYPE_LEVELS[type] ?? "info";
+}
 
 export function formatTimestamp(): string {
   const now = new Date();

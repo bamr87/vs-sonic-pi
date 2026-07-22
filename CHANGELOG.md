@@ -13,20 +13,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Audio stream webview** — `Sonic Pi: Listen (Audio Stream)` command and Controls sidebar entry for hearing output in headless environments
 - **Environment detection** — auto-detect Codespaces and remote containers via environment variables (`SONIC_PI_HOME`, `AUDIO_STREAM_PORT`)
 - **Copilot agent and prompt templates** — contributor agent, contribution workflow instructions, and reusable prompt files
+- **Live loop CodeLens** — a `▶ Run loop :name` lens above every `live_loop` block sends just that loop to Sonic Pi for granular live coding
+- **`Sonic Pi: New Loop File`** command — opens a ready-to-run starter file with two synced live loops
+- **`Sonic Pi: Open Log`** command and Controls sidebar entry
+- `OscTransport.request()` — send-and-await-reply helper with timeout, now backing ping and beautify
 
 ### Changed
 
 - Port discovery now uses a saved `port-info` file instead of parsing `spider.log`
 - `DaemonSpawner` checks `SONIC_PI_HOME` environment variable for daemon path
+- `DaemonSpawner` prefers Sonic Pi's bundled Ruby (`app/server/native/ruby/bin/ruby`) over system `ruby`, which is often too old to run `daemon.rb`
+- `DaemonSpawner` now shuts the daemon down gracefully via `/daemon/exit` (SIGTERM only as a 2s fallback), so spider/scsynth/tau exit cleanly
 - `ConnectionManager` tries existing port-info file before spawning a new daemon
+- Run commands now use a stable per-document buffer id, so re-running a file replaces the previous job instead of accumulating new server-side buffers
+- Auto-connect on activation is quiet: no error popup when Sonic Pi isn't running (the status bar still shows the state; manual connect reports errors)
 - Extension declared as `extensionKind: ["workspace"]` for remote support
 - Added `docs/10-codespaces-support.md` architecture documentation for remote runtime and streaming
+- Removed redundant `activationEvents` (VS Code generates them from contributions)
+- Added `@types/node`; `npx tsc --noEmit` now passes clean and CI can type-check
 
 ### Fixed
 
 - Mario Overworld example timing: all loops now align to 24 beats (6 bars of 4/4)
 - Tests mock `findDaemonPath` to prevent side effects from host Sonic Pi installs
 - Audio stream webview now applies CSP + nonce script policy and validates stream port values
+- Audio stream webview buttons were dead: inline `onclick` handlers are blocked by the webview's own CSP; they are now wired via `addEventListener`, and "Open in Browser" uses `vscode.env.openExternal`
+- OSC listen socket bound to the *remote* host's IP when `sonicpi.osc.host` was not localhost, making any remote connection fail; it now binds a local interface
+- `/buffer-beautify` sent only 2 of the 5 protocol arguments; it now sends cursor line/index/first-visible-line and restores the cursor from the server reply
+- Daemon-spawn saved `port-info` into the app installation directory where reconnect never looked (and which is usually read-only); it now saves to `SONIC_PI_HOME`/home, matching discovery, and clears it when the daemon exits
+- `DaemonSpawner.isRunning` stayed true after the daemon died on its own, blocking respawn on reconnect
+- OSC message handlers leaked on every failed connection attempt
+- Log level `warning`/`error` silently dropped multi-messages that *contained* warnings/errors; filtering is now per message type
+- Problems-panel diagnostics now clear when code is re-run and attach to the document that was run, not whichever editor is focused when the error arrives
+- Stale run diagnostics no longer accumulate across runs
+- Status bar no longer triggers a disconnect when clicked mid-connect
 - Connection recovery now clears stale `port-info` and retries with fresh discovery when initial ping fails
 
 ## [0.1.0] - 2026-03-05
