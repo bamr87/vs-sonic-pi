@@ -10,6 +10,11 @@ import { ConfigManager } from "../config/ConfigManager.js";
 const MAX_PING_RETRIES = 5;
 const PING_TIMEOUT_MS = 1000;
 
+export interface ConnectOptions {
+  /** Suppress error popups (used for auto-connect on activation). */
+  quiet?: boolean;
+}
+
 export class ConnectionManager implements vscode.Disposable {
   private _state = ConnectionState.Disconnected;
   private _transport: OscTransport | undefined;
@@ -57,7 +62,73 @@ export class ConnectionManager implements vscode.Disposable {
     this._onDidChangeState.fire(state);
   }
 
-  async connect(): Promise<void> {
+  private teardownTransport(): Promise<void> {
+    for (const d of this._messageDisposables) {
+      d.dispose();
+    }
+    this._messageDisposables = [];
+
+    const transport = this._transport;
+    this._transport = undefined;
+    this._portMap = undefined;
+
+    return transport ? transport.dispose() : Promise.resolve();
+  }
+
+  private async connectWithPorts(ports: PortMap): Promise<boolean> {
+    this._portMap = ports;
+
+    this._transport = new OscTransport({
+      host: this._config.host,
+      sendPort: ports.guiSendToServer,
+      listenPort: ports.guiListenToServer,
+      token: ports.token,
+    });
+
+    await this._transport.open();
+
+    this._messageDisposables.push(
+      this._transport.onAnyMessage((msg) => {
+        this._onDidReceiveMessage.fire(msg);
+      })
+    );
+
+    this._messageDisposables.push(
+      this._transport.onMessage("/exited", () => {
+        this.disconnect();
+      })
+    );
+
+    this._messageDisposables.push(
+      this._transport.onMessage("/exited-with-boot-error", () => {
+        vscode.window.showErrorMessage(
+          "Sonic Pi exited with a boot error. Check the Sonic Pi log for details."
+        );
+        this.disconnect();
+      })
+    );
+
+    const ackReceived = await this.pingWithRetry();
+
+    if (!ackReceived) {
+      await this.teardownTransport();
+      return false;
+    }
+
+    if (ports.daemon > 0) {
+      this._heartbeat = new Heartbeat(
+        this._config.host,
+        ports.daemon,
+        ports.token,
+        this._config.heartbeatInterval
+      );
+      this._heartbeat.start();
+    }
+
+    return true;
+  }
+
+  async connect(options: ConnectOptions = {}): Promise<void> {
     if (
       this._state === ConnectionState.Connected ||
       this._state === ConnectionState.Connecting
@@ -69,8 +140,15 @@ export class ConnectionManager implements vscode.Disposable {
 
     try {
       let ports: PortMap;
+      let triedPortFile = false;
 
-      if (this._daemonSpawner.findDaemonPath() && !this._daemonSpawner.isRunning) {
+      // Check if an existing daemon left a port-info file
+      const existingPorts = this._portDiscovery.discoverFromPortFile();
+
+      if (existingPorts) {
+        ports = existingPorts;
+        triedPortFile = true;
+      } else if (this._daemonSpawner.findDaemonPath() && !this._daemonSpawner.isRunning) {
         try {
           ports = await this._daemonSpawner.spawn();
         } catch {
@@ -80,63 +158,45 @@ export class ConnectionManager implements vscode.Disposable {
         ports = this._portDiscovery.discover();
       }
 
-      this._portMap = ports;
+      let connected = await this.connectWithPorts(ports);
 
-      this._transport = new OscTransport({
-        host: this._config.host,
-        sendPort: ports.guiSendToServer,
-        listenPort: ports.guiListenToServer,
-        token: ports.token,
-      });
+      // If persisted ports are stale, clear file and retry with fresh discovery/spawn.
+      if (!connected && triedPortFile) {
+        this._portDiscovery.clearDiscoveredPortInfo();
 
-      await this._transport.open();
+        if (this._daemonSpawner.findDaemonPath() && !this._daemonSpawner.isRunning) {
+          try {
+            ports = await this._daemonSpawner.spawn();
+          } catch {
+            ports = this._portDiscovery.discoverFromConfigAndDefaults();
+          }
+        } else {
+          ports = this._portDiscovery.discoverFromConfigAndDefaults();
+        }
 
-      this._messageDisposables.push(
-        this._transport.onAnyMessage((msg) => {
-          this._onDidReceiveMessage.fire(msg);
-        })
-      );
-
-      this._transport.onMessage("/exited", () => {
-        this.disconnect();
-      });
-
-      this._transport.onMessage("/exited-with-boot-error", () => {
-        vscode.window.showErrorMessage(
-          "Sonic Pi exited with a boot error. Check the Sonic Pi log for details."
-        );
-        this.disconnect();
-      });
-
-      const ackReceived = await this.pingWithRetry();
-
-      if (!ackReceived) {
-        await this._transport.dispose();
-        this._transport = undefined;
-        this.setState(ConnectionState.Disconnected);
-        vscode.window.showErrorMessage(
-          "Could not connect to Sonic Pi — no response to ping. " +
-            "Is Sonic Pi running?"
-        );
-        return;
+        connected = await this.connectWithPorts(ports);
       }
 
-      if (ports.daemon > 0) {
-        this._heartbeat = new Heartbeat(
-          this._config.host,
-          ports.daemon,
-          ports.token,
-          this._config.heartbeatInterval
-        );
-        this._heartbeat.start();
+      if (!connected) {
+        this.setState(ConnectionState.Disconnected);
+        if (!options.quiet) {
+          vscode.window.showErrorMessage(
+            "Could not connect to Sonic Pi — no response to ping. " +
+              "Is Sonic Pi running?"
+          );
+        }
+        return;
       }
 
       this.setState(ConnectionState.Connected);
     } catch (err) {
+      await this.teardownTransport();
       this.setState(ConnectionState.Disconnected);
-      const msg =
-        err instanceof Error ? err.message : "Unknown connection error";
-      vscode.window.showErrorMessage(`Sonic Pi connection failed: ${msg}`);
+      if (!options.quiet) {
+        const msg =
+          err instanceof Error ? err.message : "Unknown connection error";
+        vscode.window.showErrorMessage(`Sonic Pi connection failed: ${msg}`);
+      }
     }
   }
 
@@ -144,26 +204,29 @@ export class ConnectionManager implements vscode.Disposable {
     if (!this._transport) return false;
 
     for (let attempt = 0; attempt < MAX_PING_RETRIES; attempt++) {
-      const gotAck = await new Promise<boolean>((resolve) => {
-        const timeout = setTimeout(() => resolve(false), PING_TIMEOUT_MS);
-
-        const disposable = this._transport!.onMessage("/ack", () => {
-          clearTimeout(timeout);
-          disposable.dispose();
-          resolve(true);
-        });
-
-        this._transport!.send("/ping", "vscode-init").catch(() => {
-          clearTimeout(timeout);
-          disposable.dispose();
-          resolve(false);
-        });
-      });
-
-      if (gotAck) return true;
+      const ack = await this._transport.request(
+        "/ping",
+        "/ack",
+        PING_TIMEOUT_MS,
+        "vscode-init"
+      );
+      if (ack) return true;
     }
 
     return false;
+  }
+
+  /**
+   * Tear down the current daemon and boot a fresh one. Needed when the
+   * daemon's audio server is stuck on a stale output device: scsynth keeps
+   * the device it opened at boot, so switching the system output (e.g. from
+   * a monitor to speakers) silences Sonic Pi until the daemon restarts.
+   */
+  async restartDaemon(options: ConnectOptions = {}): Promise<void> {
+    await this.disconnect();
+    this._daemonSpawner.kill();
+    this._portDiscovery.clearDiscoveredPortInfo();
+    await this.connect(options);
   }
 
   async disconnect(): Promise<void> {
@@ -179,17 +242,8 @@ export class ConnectionManager implements vscode.Disposable {
     this._heartbeat?.dispose();
     this._heartbeat = undefined;
 
-    for (const d of this._messageDisposables) {
-      d.dispose();
-    }
-    this._messageDisposables = [];
+    await this.teardownTransport();
 
-    if (this._transport) {
-      await this._transport.dispose();
-      this._transport = undefined;
-    }
-
-    this._portMap = undefined;
     this.setState(ConnectionState.Disconnected);
   }
 

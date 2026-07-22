@@ -1,0 +1,10 @@
+#!/usr/bin/pulseaudio -nF
+
+# PulseAudio configuration for headless Codespace environments.
+# Uses a virtual (null) sink so SuperCollider can boot without hardware.
+
+load-module module-null-sink sink_name=virtual_output sink_properties=device.description="Virtual_Output"
+set-default-sink virtual_output
+
+load-module module-native-protocol-unix
+load-module module-always-sink

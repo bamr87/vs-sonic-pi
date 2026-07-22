@@ -37,6 +37,7 @@ export interface SonicPiConfig {
   autoConnect: boolean;
   heartbeatInterval: number;
   sonicPiPath: string;
+  audioInputs: boolean;
   logLevel: LogLevel;
 }
 

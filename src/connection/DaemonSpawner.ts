@@ -1,36 +1,77 @@
 import { ChildProcess, spawn } from "child_process";
 import { existsSync } from "fs";
-import { platform } from "os";
+import { homedir, platform } from "os";
+import { join } from "path";
+import { Client } from "node-osc";
 import * as vscode from "vscode";
 import { PortMap } from "../types/sonicpi.js";
-import { parseDaemonOutput } from "./PortDiscovery.js";
+import { parseDaemonOutput, savePortInfo, clearPortInfo } from "./PortDiscovery.js";
+
+const DAEMON_RB_SUFFIX = "app/server/ruby/bin/daemon.rb";
 
 const PLATFORM_PATHS: Record<string, string[]> = {
   darwin: [
-    "/Applications/Sonic Pi.app/Contents/Resources/app/server/ruby/bin/daemon.rb",
+    `/Applications/Sonic Pi.app/Contents/Resources/${DAEMON_RB_SUFFIX}`,
   ],
   linux: [
-    "/usr/lib/sonic-pi/app/server/ruby/bin/daemon.rb",
-    "/opt/sonic-pi/app/server/ruby/bin/daemon.rb",
+    `/usr/lib/sonic-pi/${DAEMON_RB_SUFFIX}`,
+    `/opt/sonic-pi/${DAEMON_RB_SUFFIX}`,
   ],
   win32: [
-    "C:\\Program Files\\Sonic Pi\\app\\server\\ruby\\bin\\daemon.rb",
-    "C:\\Program Files (x86)\\Sonic Pi\\app\\server\\ruby\\bin\\daemon.rb",
+    `C:\\Program Files\\Sonic Pi\\${DAEMON_RB_SUFFIX.replace(/\//g, "\\")}`,
+    `C:\\Program Files (x86)\\Sonic Pi\\${DAEMON_RB_SUFFIX.replace(/\//g, "\\")}`,
   ],
 };
 
+/**
+ * Sonic Pi ships its own Ruby under app/server/native/ruby/bin. The system
+ * `ruby` (if present at all) is often too old to run daemon.rb, so prefer
+ * the bundled interpreter next to the daemon script.
+ */
+export function findRubyForDaemon(daemonRbPath: string): string {
+  const marker = join("app", "server", "ruby", "bin");
+  const idx = daemonRbPath.lastIndexOf(marker);
+  if (idx !== -1) {
+    const root = daemonRbPath.slice(0, idx);
+    const exe = platform() === "win32" ? "ruby.exe" : "ruby";
+    const bundled = join(root, "app", "server", "native", "ruby", "bin", exe);
+    if (existsSync(bundled)) return bundled;
+  }
+  return "ruby";
+}
+
+export interface DaemonSpawnerOptions {
+  /**
+   * Ask scsynth to open audio inputs (needed for live_audio). Off by
+   * default: opening the microphone from the VS Code process triggers a
+   * macOS permission prompt and can silently break audio when the input
+   * device's sample rate differs from the output's.
+   */
+  audioInputs?: boolean;
+}
+
 export class DaemonSpawner implements vscode.Disposable {
   private _process: ChildProcess | undefined;
-  private _disposed = false;
+  private _portMap: PortMap | undefined;
+  private _portInfoHome: string | undefined;
 
-  constructor(private readonly _customPath?: string) {}
+  constructor(
+    private readonly _customPath?: string,
+    private readonly _opts: DaemonSpawnerOptions = {}
+  ) {}
 
   findDaemonPath(): string | undefined {
     if (this._customPath) {
       const daemonRb = this._customPath.endsWith("daemon.rb")
         ? this._customPath
-        : `${this._customPath}/app/server/ruby/bin/daemon.rb`;
+        : `${this._customPath}/${DAEMON_RB_SUFFIX}`;
       if (existsSync(daemonRb)) return daemonRb;
+    }
+
+    const envHome = process.env.SONIC_PI_HOME;
+    if (envHome) {
+      const envDaemon = `${envHome}/${DAEMON_RB_SUFFIX}`;
+      if (existsSync(envDaemon)) return envDaemon;
     }
 
     const paths = PLATFORM_PATHS[platform()] || [];
@@ -55,8 +96,14 @@ export class DaemonSpawner implements vscode.Disposable {
       );
     }
 
+    // daemon.rb only checks ARGV[0], so the flag must come right after the
+    // script path.
+    const daemonArgs = this._opts.audioInputs
+      ? [daemonPath]
+      : [daemonPath, "--no-scsynth-inputs"];
+
     return new Promise<PortMap>((resolve, reject) => {
-      const proc = spawn("ruby", [daemonPath], {
+      const proc = spawn(findRubyForDaemon(daemonPath), daemonArgs, {
         stdio: ["pipe", "pipe", "pipe"],
         detached: false,
       });
@@ -83,6 +130,11 @@ export class DaemonSpawner implements vscode.Disposable {
           const ports = parseDaemonOutput(trimmed);
           if (ports) {
             resolved = true;
+            this._portMap = ports;
+            // Persist ports where PortDiscovery looks for them, so a later
+            // reconnect (or another window) can reuse this daemon.
+            this._portInfoHome = process.env.SONIC_PI_HOME || homedir();
+            savePortInfo(this._portInfoHome, trimmed);
             resolve(ports);
             return;
           }
@@ -103,6 +155,16 @@ export class DaemonSpawner implements vscode.Disposable {
       });
 
       proc.on("exit", (code) => {
+        // Only clean up if this spawn is still the current one — after a
+        // restart the old process exits late and must not delete the new
+        // daemon's port-info file.
+        if (this._process === proc) {
+          this._process = undefined;
+          if (this._portInfoHome) {
+            clearPortInfo(this._portInfoHome);
+            this._portInfoHome = undefined;
+          }
+        }
         if (!resolved) {
           resolved = true;
           reject(
@@ -125,10 +187,42 @@ export class DaemonSpawner implements vscode.Disposable {
     });
   }
 
+  /**
+   * Ask the daemon to shut down cleanly (/daemon/exit stops spider, scsynth
+   * and tau), falling back to SIGTERM if it hasn't exited shortly after.
+   */
   kill(): void {
-    if (this._process && !this._process.killed) {
-      this._process.kill("SIGTERM");
+    const proc = this._process;
+    if (!proc || proc.killed) {
       this._process = undefined;
+      return;
+    }
+
+    const ports = this._portMap;
+    if (ports && ports.daemon > 0) {
+      try {
+        const client = new Client("127.0.0.1", ports.daemon);
+        client.send("/daemon/exit", ports.token, () => {
+          client.close()?.catch(() => {});
+        });
+        const fallback = setTimeout(() => {
+          if (!proc.killed && proc.exitCode === null) {
+            proc.kill("SIGTERM");
+          }
+        }, 2000);
+        proc.on("exit", () => clearTimeout(fallback));
+      } catch {
+        proc.kill("SIGTERM");
+      }
+    } else {
+      proc.kill("SIGTERM");
+    }
+
+    this._process = undefined;
+    this._portMap = undefined;
+    if (this._portInfoHome) {
+      clearPortInfo(this._portInfoHome);
+      this._portInfoHome = undefined;
     }
   }
 
@@ -137,7 +231,6 @@ export class DaemonSpawner implements vscode.Disposable {
   }
 
   dispose(): void {
-    this._disposed = true;
     this.kill();
   }
 }

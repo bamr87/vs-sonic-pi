@@ -85,6 +85,20 @@ const CONTROLS: ControlItem[] = [
     connectedOnly: true,
   },
   {
+    id: "newLoop",
+    label: "New Loop File",
+    icon: "new-file",
+    command: "sonicpi.newLoop",
+    group: "Playback",
+  },
+  {
+    id: "openLog",
+    label: "Open Log",
+    icon: "output",
+    command: "sonicpi.openLog",
+    group: "Tools",
+  },
+  {
     id: "openExamples",
     label: "Open Examples",
     icon: "file-code",
@@ -103,6 +117,13 @@ const CONTROLS: ControlItem[] = [
     label: "Language Reference",
     icon: "references",
     command: "sonicpi.openReference",
+    group: "Resources",
+  },
+  {
+    id: "openAudioStream",
+    label: "Listen (Audio Stream)",
+    icon: "unmute",
+    command: "sonicpi.openAudioStream",
     group: "Resources",
   },
 ];
@@ -128,13 +149,19 @@ export class ControlsTreeProvider
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private _connectionState = ConnectionState.Disconnected;
+  private readonly _stateSubscription: vscode.Disposable;
 
   constructor(connectionManager: ConnectionManager) {
     this._connectionState = connectionManager.state;
-    connectionManager.onDidChangeState((state) => {
+    this._stateSubscription = connectionManager.onDidChangeState((state) => {
       this._connectionState = state;
       this._onDidChangeTreeData.fire(undefined);
     });
+  }
+
+  dispose(): void {
+    this._stateSubscription.dispose();
+    this._onDidChangeTreeData.dispose();
   }
 
   getTreeItem(element: TreeNode): vscode.TreeItem {
@@ -183,10 +210,6 @@ export class ControlsTreeProvider
         item.description = "Connecting...";
         item.iconPath = new vscode.ThemeIcon("loading~spin");
       }
-    }
-
-    if (ctrl.id === "disconnect" && !connected) {
-      return new vscode.TreeItem("");
     }
 
     return item;

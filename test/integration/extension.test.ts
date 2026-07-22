@@ -71,6 +71,8 @@ describe("Extension Integration", () => {
       configDaemonPort: 4560,
     });
     const daemonSpawner = new DaemonSpawner("/nonexistent");
+    // Prevent the real daemon from being found via platform paths
+    vi.spyOn(daemonSpawner, "findDaemonPath").mockReturnValue(undefined);
 
     connectionManager = new ConnectionManager(
       config,

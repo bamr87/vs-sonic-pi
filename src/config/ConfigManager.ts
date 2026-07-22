@@ -49,6 +49,10 @@ export class ConfigManager implements vscode.Disposable {
     return this.cfg.get<string>("sonicPiPath", "");
   }
 
+  get audioInputs(): boolean {
+    return this.cfg.get<boolean>("audioInputs", false);
+  }
+
   get logLevel(): LogLevel {
     const val = this.cfg.get<string>("logLevel", "info");
     const valid: LogLevel[] = ["debug", "info", "warning", "error"];
@@ -66,6 +70,7 @@ export class ConfigManager implements vscode.Disposable {
       autoConnect: this.autoConnect,
       heartbeatInterval: this.heartbeatInterval,
       sonicPiPath: this.sonicPiPath,
+      audioInputs: this.audioInputs,
       logLevel: this.logLevel,
     };
   }

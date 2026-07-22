@@ -1,40 +1,60 @@
-# Super Mario Bros - Overworld
+# Super Mario Bros - Overworld Theme
 # Iconic plumber platformer theme
 # Coded for Sonic Pi
+#
+# All three loops are 24 beats (6 bars of 4/4)
 
 use_bpm 200
 
 live_loop :melody do
   use_synth :square
-  use_synth_defaults release: 0.1, amp: 0.5, cutoff: 110
+  use_synth_defaults release: 0.15, amp: 0.5, cutoff: 110
 
-  notes = [:e5, :e5, :r, :e5, :r, :c5, :e5, :r,
-           :g5, :r, :r, :r, :g4, :r, :r, :r]
-  durs =  [0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
-           0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25]
-  play_pattern_timed notes, durs
+  # Bars 1-2: Opening motif
+  play_pattern_timed [:e5, :e5, :r, :e5, :r, :c5, :e5, :r,
+                       :g5, :r, :r, :g4, :r],
+    [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1, 0.5,
+     1, 0.5, 0.5, 1, 1]
 
-  notes2 = [:c5, :r, :r, :g4, :r, :r, :e4, :r,
-            :r, :a4, :r, :b4, :r, :as4, :a4, :r]
-  play_pattern_timed notes2, durs
+  # Bars 3-4: Descending answer
+  play_pattern_timed [:c5, :g4, :r, :e4,
+                       :r, :a4, :b4, :as4, :a4],
+    [1.5, 0.5, 1, 1,
+     0.5, 1, 1, 0.5, 1]
 
-  notes3 = [:g4, :e5, :g5, :a5, :r, :f5, :g5, :r,
-            :e5, :r, :c5, :d5, :b4, :r, :r, :r]
-  play_pattern_timed notes3, [0.1667, 0.1667, 0.1667, 0.25, 0.25, 0.25, 0.25, 0.25,
-                              0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25]
+  # Bars 5-6: Triplet run and resolution
+  play_pattern_timed [:g4, :e5, :g5, :a5, :f5, :g5,
+                       :r, :e5, :r, :c5, :d5, :b4],
+    [0.667, 0.667, 0.666, 1, 0.5, 0.5,
+     0.5, 1, 0.5, 0.5, 0.5, 1]
 end
 
 live_loop :bass do
   use_synth :tri
   use_synth_defaults release: 0.15, amp: 0.4
-  bass = [:d3, :d3, :r, :d3, :r, :d3, :d3, :r,
-          :g3, :r, :r, :r, :g2, :r, :r, :r]
-  play_pattern_timed bass, [0.25]
+
+  # Bars 1-2
+  play_pattern_timed [:d3, :d3, :r, :d3, :r, :d3, :d3, :r,
+                       :g3, :r, :r, :g2, :r],
+    [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1, 0.5,
+     1, 0.5, 0.5, 1, 1]
+
+  # Bars 3-4
+  play_pattern_timed [:c3, :g2, :r, :e2,
+                       :r, :a2, :b2, :as2, :a2],
+    [1.5, 0.5, 1, 1,
+     0.5, 1, 1, 0.5, 1]
+
+  # Bars 5-6
+  play_pattern_timed [:c3, :g3, :e3, :f3, :c3, :c4,
+                       :r, :g3, :r, :g3, :f3, :g3],
+    [0.667, 0.667, 0.666, 1, 0.5, 0.5,
+     0.5, 1, 0.5, 0.5, 0.5, 1]
 end
 
 live_loop :percussion do
   sample :elec_blip, rate: 0.5, amp: 0.2
-  sleep 0.25
+  sleep 0.5
   sample :elec_blip, rate: 1, amp: 0.15
-  sleep 0.25
+  sleep 0.5
 end
