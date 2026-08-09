@@ -6,7 +6,7 @@ interface StatusBarConfig {
   icon: string;
   text: string;
   tooltip: string;
-  command: string;
+  command: string | undefined;
 }
 
 const STATE_CONFIG: Record<ConnectionState, StatusBarConfig> = {
@@ -20,7 +20,7 @@ const STATE_CONFIG: Record<ConnectionState, StatusBarConfig> = {
     icon: "$(loading~spin)",
     text: "Sonic Pi: Connecting...",
     tooltip: "Connecting to Sonic Pi...",
-    command: "sonicpi.disconnect",
+    command: undefined,
   },
   [ConnectionState.Connected]: {
     icon: "$(check)",
@@ -32,7 +32,7 @@ const STATE_CONFIG: Record<ConnectionState, StatusBarConfig> = {
     icon: "$(loading~spin)",
     text: "Sonic Pi: Disconnecting...",
     tooltip: "Disconnecting from Sonic Pi...",
-    command: "sonicpi.connect",
+    command: undefined,
   },
 };
 

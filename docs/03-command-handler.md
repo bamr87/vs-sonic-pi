@@ -61,10 +61,10 @@ export function registerCommands(
 | 1 | Check connection state. If not `Connected`, show error and return. |
 | 2 | Get the active text editor. If none, show warning: "No active editor." |
 | 3 | Read the full document text. |
-| 4 | Determine `filename`: the file's `fsPath`, or `"untitled"` if unsaved. |
-| 5 | Determine `workspace`: the VS Code workspace folder name, or `"default"`. |
-| 6 | Send `/save-and-run-buffer` with args `[filename, code, workspace]`. |
-| 7 | Ensure the log Output channel is visible. |
+| 4 | Derive a **stable buffer id** from the document URI (FNV-1a hash, `vscode-<hash>`). Re-running the same document reuses the same server-side buffer — mirroring the GUI's fixed `workspace_zero..nine` ids — so Sonic Pi replaces the previous job instead of accumulating buffers. |
+| 5 | Determine `workspace`: the file's `fsPath`, or `"untitled"` if unsaved. |
+| 6 | Clear diagnostics for the previous run (`DiagnosticsProvider.beginRun`). |
+| 7 | Send `/save-and-run-buffer` with args `[buffer_id, code, workspace]`. |
 
 ```typescript
 async function runBuffer(cm: ConnectionManager): Promise<void> {

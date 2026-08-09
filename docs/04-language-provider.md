@@ -27,8 +27,19 @@ Language Provider
 ├── Snippets                ← Phase 1: common code patterns (static JSON)
 ├── CompletionProvider      ← Phase 2: IntelliSense for synths, samples, FX, opts
 ├── HoverProvider           ← Phase 2: documentation on hover
-└── DiagnosticsProvider     ← Phase 2: server errors → Problems panel
+├── DiagnosticsProvider     ← Phase 2: server errors → Problems panel
+└── LiveLoopLensProvider    ← Phase 3: "▶ Run loop" CodeLens per live_loop
 ```
+
+### LiveLoopLensProvider (`src/language/LiveLoopLens.ts`)
+
+`findLiveLoops(text)` locates every `live_loop :name do ... end` block by
+tracking do/end nesting line-by-line (strings and comments are stripped
+heuristically; unclosed loops extend to the last line). The provider places a
+`▶ Run loop :name` CodeLens on each loop's first line, which invokes
+`sonicpi.runLiveLoop` with the document URI and line range — sending only that
+loop's code to the server via `/run-code`. This is the core live-coding
+gesture: tweak one loop and re-send it without re-running the whole buffer.
 
 ---
 

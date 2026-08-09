@@ -6,6 +6,7 @@ import {
   formatInfo,
   formatError,
   formatSyntaxError,
+  levelForMessageType,
 } from "./LogFormatter.js";
 
 const LOG_LEVEL_ORDER: Record<LogLevel, number> = {
@@ -46,7 +47,22 @@ export class LogManager implements vscode.Disposable {
       case "/syntax_error":
         this.handleSyntaxError(msg);
         break;
+      case "/scsynth/info":
+        this.handleScsynthInfo(msg);
+        break;
     }
+  }
+
+  /**
+   * /scsynth/info args: [hw_info_string] — a multi-line report of the
+   * audio devices scsynth opened (sent by the daemon after boot). Always
+   * logged: sound silently going to the wrong device is the most common
+   * "no sound" failure, and this is the only place it is visible.
+   */
+  private handleScsynthInfo(msg: OscMessage): void {
+    const info = String(msg.args[0] ?? "").trim();
+    if (!info) return;
+    this._channel.appendLine(`[audio] ${info.split("\n").join("\n[audio] ")}`);
   }
 
   /**
@@ -54,8 +70,6 @@ export class LogManager implements vscode.Disposable {
    * [job_id, thread_name, runtime, N, type1, msg1, type2, msg2, ...]
    */
   private handleMultiMessage(msg: OscMessage): void {
-    if (!this.shouldLog("info")) return;
-
     const args = msg.args;
     const threadName = String(args[1] ?? "");
     const runtime = String(args[2] ?? "");
@@ -65,8 +79,11 @@ export class LogManager implements vscode.Disposable {
     for (let i = 0; i < count; i++) {
       const type = Number(args[4 + i * 2] ?? 0);
       const content = String(args[5 + i * 2] ?? "");
-      messages.push({ type, content });
+      if (this.shouldLog(levelForMessageType(type))) {
+        messages.push({ type, content });
+      }
     }
+    if (messages.length === 0) return;
 
     const formatted = formatMultiMessage(threadName, runtime, messages);
     this._channel.appendLine(formatted);
