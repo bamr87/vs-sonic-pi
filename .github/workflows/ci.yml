@@ -1,36 +1,39 @@
 name: CI
 
+# Adopted from bamr87/bamr87 via the standard-ci kit. This is a thin caller —
+# the gate logic is shared and versioned in
+# bamr87/bamr87/.github/workflows/standard-ci.yml. Don't edit the logic here.
+#
+# The shared gate runs npm ci (lockfile present) then lint / test / build via
+# `npm run <script> --if-present`, which maps onto this repo's eslint, vitest,
+# and esbuild scripts.
+#
+# The matrix is deliberate: this extension supports Node 20 and 22, and the
+# bespoke workflow this replaces tested both. A reusable-workflow caller can
+# carry a matrix, so both legs are preserved by fanning the gate out over the
+# versions rather than dropping to the fleet default. That does mean the
+# explicit `node-version` input masks vars.NODE_VERSION for this repo — the
+# supported-runtime range is a property of the extension, not of the fleet.
+
 on:
+  pull_request:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  ci:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [20, 22]
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v7
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Build
-        run: npm run build
-
-      - name: Test
-        run: npm test
+        node-version: ["20", "22"]
+    uses: bamr87/bamr87/.github/workflows/standard-ci.yml@main
+    with:
+      node-version: ${{ matrix.node-version }}
+    secrets: inherit
