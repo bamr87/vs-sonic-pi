@@ -109,9 +109,7 @@ Open the Command Palette (`Ctrl+Shift+P`) and type "Sonic Pi" to see all availab
 
 ### Run loops individually
 
-Every `live_loop` in a `.spi` file gets a **▶ Run loop** CodeLens above it.
-Click it to send just that loop to Sonic Pi — tweak one loop and re-send it
-while the rest of your music keeps playing.
+Every `live_loop` in a `.spi` file gets a **▶ Run loop** CodeLens above it. Click it to send just that loop to Sonic Pi — tweak one loop and re-send it while the rest of your music keeps playing.
 
 ---
 
