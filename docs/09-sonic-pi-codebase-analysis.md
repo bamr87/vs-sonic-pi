@@ -602,8 +602,7 @@ For the MVP, the extension talks to **Spider** (via `gui-send-to-spider` port), 
 | `light/doc-styles.css` | Light theme CSS |
 | `high_contrast/doc-styles.css` | High contrast CSS |
 
-Color tokens from `colour-theme.properties`:
-`windowColor`, `paneColor`, `logForegroundColor`, `logBackgroundColor`, `selectionForegroundColor`, `selectionBackgroundColor`, `errorBackgroundColor`, `syntaxErrorBackgroundColor`
+Color tokens from `colour-theme.properties`: `windowColor`, `paneColor`, `logForegroundColor`, `logBackgroundColor`, `selectionForegroundColor`, `selectionBackgroundColor`, `errorBackgroundColor`, `syntaxErrorBackgroundColor`
 
 ### i18n
 
