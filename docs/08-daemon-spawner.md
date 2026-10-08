@@ -197,11 +197,17 @@ class DaemonSpawner implements Disposable {
 The daemon outputs port information during boot. The spawner captures STDOUT and parses it:
 
 ```
-1. Spawn `ruby daemon.rb` as a child process.
+1. Spawn `<ruby> daemon.rb` as a child process. The interpreter is Sonic Pi's
+   bundled Ruby (app/server/native/ruby/bin/ruby) when present, falling back
+   to system `ruby` — system Ruby is often too old to run daemon.rb.
 2. Buffer STDOUT line by line.
-3. Look for the port map line (regex: /Ports:\s*\{.*\}/ or similar).
-4. Parse the port map.
-5. Resolve the start() promise with the PortMap.
+3. Look for the 8-integer port line (daemon, gui-listen, gui-send, scsynth,
+   osc-cues, tau-api, tau-phx, token).
+4. Parse the port map and persist it to `$SONIC_PI_HOME/.sonic-pi/port-info`
+   (or `~/.sonic-pi/port-info`), the same location PortDiscovery reads, so a
+   reconnect or second window can reuse the running daemon. The file is
+   cleared when the daemon exits.
+5. Resolve the spawn() promise with the PortMap.
 6. If no port map appears within 30s, reject with timeout error.
 ```
 
@@ -209,7 +215,7 @@ The daemon outputs port information during boot. The spawner captures STDOUT and
 
 | Concern | Approach |
 |---------|----------|
-| **Child process cleanup** | On `stop()` or `dispose()`, send SIGTERM to the daemon. The daemon handles SIGTERM by shutting down Tau, Spider, and scsynth. |
+| **Child process cleanup** | On `kill()` or `dispose()`, send `/daemon/exit` (with the auth token) to the daemon port — the documented graceful shutdown path that stops Tau, Spider, and scsynth. SIGTERM is a fallback if the process is still alive 2s later. |
 | **Orphan prevention** | Register a handler for the VS Code extension host's `process.on('exit')` to kill the daemon if the extension crashes. |
 | **Multiple instances** | Check if a daemon is already running (port file exists and ports are responsive) before spawning a new one. |
 | **Platform differences** | On Windows, use `child_process.spawn` with `shell: true` and `taskkill` for cleanup. On macOS/Linux, use process groups and `SIGTERM`. |

@@ -29,7 +29,8 @@ extension.ts (entry point)
     │       ├── Snippets
     │       ├── CompletionProvider
     │       ├── HoverProvider
-    │       └── DiagnosticsProvider
+    │       ├── DiagnosticsProvider
+    │       └── LiveLoopLensProvider
     │
     ├── LogManager ················· 05-log-manager.md
     │       └── LogFormatter
@@ -54,6 +55,7 @@ extension.ts (entry point)
 | 07 | [Configuration](./07-config-manager.md) | `ConfigManager` | 1 (MVP) | Typed, validated access to all `sonicpi.*` settings. Emits change events so modules can react without restart. |
 | 08 | [Daemon Spawner & Port Discovery](./08-daemon-spawner.md) | `PortDiscovery`, `DaemonSpawner` | 1–2 | Discovers which ports the Sonic Pi server is using (port file, config, defaults). Optionally spawns `daemon.rb` to start the server without the Qt GUI. |
 | 09 | [Sonic Pi Codebase Analysis](./09-sonic-pi-codebase-analysis.md) | *(reference)* | — | Deep analysis of the forked Sonic Pi repo. Catalogs every library, data file, and protocol detail that can be utilized or integrated into the extension. |
+| 10 | [Codespaces Support](./10-codespaces-support.md) | `environment`, `AudioStreamWebview`, devcontainer | 3 | Remote/container runtime support, streamed audio playback, and stale port-file recovery behavior. |
 
 ---
 

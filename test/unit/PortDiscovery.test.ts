@@ -1,5 +1,24 @@
-import { describe, it, expect } from "vitest";
-import { parseDaemonOutput, PortDiscovery } from "../../src/connection/PortDiscovery";
+import { mkdtempSync, rmSync } from "fs";
+import { tmpdir } from "os";
+import { join } from "path";
+import { describe, it, expect, vi } from "vitest";
+
+// Isolate from the host machine: a live ~/.sonic-pi/port-info (present
+// whenever Sonic Pi is running locally) must not leak into discovery tests.
+vi.mock("os", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("os")>();
+  return {
+    ...actual,
+    homedir: () => join(actual.tmpdir(), "vs-sonicpi-nonexistent-home"),
+  };
+});
+import {
+  parseDaemonOutput,
+  PortDiscovery,
+  savePortInfo,
+  readPortInfo,
+  clearPortInfo,
+} from "../../src/connection/PortDiscovery";
 
 describe("parseDaemonOutput", () => {
   it("parses a valid 8-value daemon STDOUT line", () => {
@@ -66,5 +85,68 @@ describe("PortDiscovery", () => {
     const ports = pd.discover("invalid");
     expect(ports.guiSendToServer).toBe(9000);
     expect(ports.guiListenToServer).toBe(9001);
+  });
+
+  it("saves and reads port-info from a Sonic Pi home directory", () => {
+    const tempHome = mkdtempSync(join(tmpdir(), "vs-sonicpi-ports-"));
+    const line = "6000 6001 6002 6003 6004 6005 6006 777";
+
+    try {
+      savePortInfo(tempHome, line);
+      const ports = readPortInfo(tempHome);
+      expect(ports).toBeDefined();
+      expect(ports?.daemon).toBe(6000);
+      expect(ports?.token).toBe(777);
+    } finally {
+      rmSync(tempHome, { recursive: true, force: true });
+    }
+  });
+
+  it("discoverFromPortFile prefers SONIC_PI_HOME when set", () => {
+    const tempHome = mkdtempSync(join(tmpdir(), "vs-sonicpi-discover-"));
+    const previousHome = process.env.SONIC_PI_HOME;
+
+    try {
+      process.env.SONIC_PI_HOME = tempHome;
+      savePortInfo(tempHome, "7000 7001 7002 7003 7004 7005 7006 888");
+
+      const pd = new PortDiscovery();
+      const ports = pd.discoverFromPortFile();
+
+      expect(ports).toBeDefined();
+      expect(ports?.guiSendToServer).toBe(7002);
+      expect(ports?.token).toBe(888);
+    } finally {
+      if (previousHome === undefined) {
+        delete process.env.SONIC_PI_HOME;
+      } else {
+        process.env.SONIC_PI_HOME = previousHome;
+      }
+      rmSync(tempHome, { recursive: true, force: true });
+    }
+  });
+
+  it("clearDiscoveredPortInfo removes persisted port-info", () => {
+    const tempHome = mkdtempSync(join(tmpdir(), "vs-sonicpi-clear-"));
+    const previousHome = process.env.SONIC_PI_HOME;
+
+    try {
+      process.env.SONIC_PI_HOME = tempHome;
+      savePortInfo(tempHome, "8000 8001 8002 8003 8004 8005 8006 999");
+
+      const pd = new PortDiscovery();
+      expect(pd.discoverFromPortFile()).toBeDefined();
+
+      pd.clearDiscoveredPortInfo();
+      expect(pd.discoverFromPortFile()).toBeUndefined();
+    } finally {
+      if (previousHome === undefined) {
+        delete process.env.SONIC_PI_HOME;
+      } else {
+        process.env.SONIC_PI_HOME = previousHome;
+      }
+      clearPortInfo(tempHome);
+      rmSync(tempHome, { recursive: true, force: true });
+    }
   });
 });

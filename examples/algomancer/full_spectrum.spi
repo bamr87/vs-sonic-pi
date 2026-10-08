@@ -1,0 +1,352 @@
+# ============================================================
+# FULL SPECTRUM — a guided tour of Sonic Pi
+# ============================================================
+# A complete ~2:20 track in E minor (Em → C → G → D) that
+# exercises the breadth of the language while staying musical.
+#
+# Arrangement (64 bars @ 112 BPM):
+#   :intro      8 bars — ambient bed, music box, gliding drone
+#   :build      8 bars — euclidean kick, hats, 303 enters, riser
+#   :drop      16 bars — four-on-floor, acid line, sliced pads, arp
+#   :breakdown  8 bars — filter-swept pads, drone returns, riser
+#   :finale    16 bars — amen break, glide lead, distorted 303
+#   :outro      8 bars — back to the ambient bed, final chord
+#
+# Techniques on display:
+#   time-state conductor (set/get), cue/sync, in_thread, live_loop
+#   ring / knit / spread / tick / look / mirror, scale & chord_invert
+#   seeded randomness (rrand, rand_i, one_in, choose)
+#   control + slide on synth AND fx nodes, density, time_warp, at
+#   sample beat_stretch / onset slicing / negative rate / rpitch
+# ============================================================
+
+use_debug false
+use_bpm 112
+use_random_seed 137
+
+load_samples [:bd_haus, :sn_dolf, :drum_cymbal_closed, :loop_amen,
+              :vinyl_hiss, :ambi_lunar_land, :perc_bell,
+              :drum_splash_hard, :drum_splash_soft, :elec_hi_snare]
+
+set :section, :intro
+set :bar, 0
+
+# --- harmony helpers: everything reads the conductor's bar count,
+# --- so all loops agree on where we are in the Em C G D cycle
+define :bass_root do
+  note((ring :e2, :c2, :g2, :d2)[get[:bar] % 4])
+end
+
+define :pad_chord do
+  i = get[:bar] % 4
+  chord((ring :e3, :c3, :g3, :d3)[i],
+        (ring :minor, :major, :major, :major)[i])
+end
+
+# ============================================================
+# THE CONDUCTOR — walks the arrangement once, stamps time-state,
+# cues risers 4 bars ahead of the big sections, then ends the run
+# ============================================================
+in_thread(name: :conductor) do
+  arrangement = [[:intro,     8, "a signal in the static"],
+                 [:build,     8, "the machine wakes up"],
+                 [:drop,     16, "full spectrum"],
+                 [:breakdown, 8, "held breath"],
+                 [:finale,   16, "everything, everywhere"],
+                 [:outro,     8, "signal fading"]]
+
+  bar = 0
+  arrangement.each_with_index do |(sec, bars, title), idx|
+    set :section, sec
+    puts "▶ #{sec} — #{title}"
+    nxt = arrangement[idx + 1]
+    big_next = nxt && [:drop, :finale].include?(nxt[0])
+    bars.times do |b|
+      # NB: cue and set share one time-state namespace — the downbeat cue
+      # must NOT be named :bar or it would overwrite the bar counter.
+      set :bar, bar
+      cue :downbeat
+      cue :riser_go if big_next && b == bars - 4
+      sample :drum_splash_hard, amp: 1.4 if [:drop, :finale].include?(sec) && b == 0
+      bar += 1
+      sleep 4
+    end
+  end
+
+  set :section, :done
+  cue :riser_go # release the riser loop so the run can finish
+  sleep 2
+  puts "▶ fin."
+  with_fx :reverb, room: 1, mix: 0.8 do
+    use_synth :hollow
+    play chord(:e3, :minor), attack: 0.5, sustain: 2, release: 8, amp: 1.2
+    synth :fm, note: :e1, depth: 1.5, release: 9, amp: 0.7
+    sample :drum_splash_soft, rate: 0.4, amp: 0.5
+  end
+end
+
+# ============================================================
+# DRUMS
+# ============================================================
+
+# Kick: euclidean spread(6,16) in the build, four-on-floor after
+live_loop :kick, sync: :downbeat do
+  stop if get[:section] == :done
+  case get[:section]
+  when :drop, :finale
+    4.times do
+      sample :bd_haus, amp: 2.2, cutoff: 110
+      sleep 1
+    end
+  when :build
+    16.times do
+      sample :bd_haus, amp: 1.5, cutoff: 92 if (spread 6, 16).tick(:bk)
+      sleep 0.25
+    end
+  else
+    sleep 4
+  end
+end
+
+# Snare: backbeat plus a time_warped ghost hit trailing it
+live_loop :snare, sync: :downbeat do
+  stop if get[:section] == :done
+  if [:drop, :finale].include? get[:section]
+    2.times do
+      sleep 1
+      sample :sn_dolf, amp: 1.3
+      time_warp 0.03 do
+        sample :elec_hi_snare, amp: 0.35, rate: 1.4, pan: 0.2 if one_in(3)
+      end
+      sleep 1
+    end
+  else
+    sleep 4
+  end
+end
+
+# Hats: knitted accent pattern, then a density-doubled fill on beat 4
+live_loop :hats, sync: :downbeat do
+  stop if get[:section] == :done
+  if [:build, :drop, :finale].include? get[:section]
+    with_fx :hpf, cutoff: 100 do
+      12.times do
+        sample :drum_cymbal_closed, amp: (knit 0.6, 1, 0.28, 3).tick(:h),
+               rate: rrand(1.4, 1.6), pan: rrand(-0.4, 0.4)
+        sleep 0.25
+      end
+      density 2 do
+        8.times do
+          sample :drum_cymbal_closed, amp: 0.3, rate: 1.9, pan: rrand(-0.6, 0.6)
+          sleep 0.25
+        end
+      end
+    end
+  else
+    sleep 4
+  end
+end
+
+# Amen break in the finale — beat_stretched to the bar, and every
+# 4th bar chopped into randomized onset slices
+live_loop :breaks, sync: :downbeat do
+  stop if get[:section] == :done
+  if get[:section] == :finale
+    if (get[:bar] % 4) == 3
+      8.times do
+        sample :loop_amen, onset: rand_i(8), amp: 0.9, pan: rrand(-0.3, 0.3)
+        sleep 0.5
+      end
+    else
+      sample :loop_amen, beat_stretch: 4, amp: 0.9
+      sleep 4
+    end
+  else
+    sleep 4
+  end
+end
+
+# ============================================================
+# BASS — tb303: 8ths in the build, full acid 16ths in the drop,
+# pulse wave + distortion in the finale
+# ============================================================
+live_loop :acid, sync: :downbeat do
+  stop if get[:section] == :done
+  sec = get[:section]
+  case sec
+  when :build
+    use_synth :tb303
+    8.times do |i|
+      play bass_root, release: 0.25, cutoff: 72 + i, res: 0.8, amp: 0.7
+      sleep 0.5
+    end
+  when :drop, :finale
+    use_synth :tb303
+    patt = (ring 0, 0, 12, 0, 0, 7, 0, 12,
+                 0, 12, 0, 0, 7, 0, 12, 0)
+    co   = sec == :finale ? 94 : 82
+    with_fx :distortion, distort: 0.5, mix: (sec == :finale ? 0.4 : 0) do
+      16.times do |i|
+        play bass_root + patt[i], release: 0.2, res: 0.87, amp: 0.85,
+             cutoff: co + (get[:bar] % 4) * 6 + rrand(-2, 2),
+             wave: (sec == :finale ? 1 : 0)
+        sleep 0.25
+      end
+    end
+  else
+    sleep 4
+  end
+end
+
+# ============================================================
+# HARMONY
+# ============================================================
+
+# Pads: chord_invert alternates voicings every 4 bars.
+#   drop      -> gated through a slicer
+#   breakdown -> a controlled lpf node sweeps the filter open
+live_loop :pads, sync: :downbeat do
+  stop if get[:section] == :done
+  sec = get[:section]
+  if [:build, :drop, :breakdown, :finale].include? sec
+    use_synth :prophet
+    notes = chord_invert(pad_chord, (get[:bar] / 4) % 2)
+    if sec == :drop
+      with_fx :slicer, phase: 0.25, smooth: 0.02, wave: 0, mix: 0.7 do
+        play notes, sustain: 3.5, release: 0.5, cutoff: 100, amp: 0.5
+      end
+    elsif sec == :breakdown
+      with_fx :lpf, cutoff: 60, cutoff_slide: 4 do |fx|
+        control fx, cutoff: 110
+        play notes, attack: 1, sustain: 2, release: 2, amp: 0.85
+      end
+    else
+      play notes, attack: 0.1, sustain: 3, release: 1, cutoff: 88, amp: 0.45
+    end
+  end
+  sleep 4
+end
+
+# Drone: hollow + dark_ambience, note_slide glides up a fifth
+live_loop :drone, sync: :downbeat do
+  stop if get[:section] == :done
+  if [:intro, :breakdown, :outro].include? get[:section]
+    root = bass_root + 12
+    with_fx :reverb, room: 0.95, mix: 0.7 do
+      s = synth :hollow, note: root + 12, sustain: 3, release: 1.5,
+                cutoff: 95, amp: 1.1, note_slide: 2, pan: -0.3
+      synth :dark_ambience, note: root, sustain: 3, release: 1.5,
+            amp: 0.8, pan: 0.3
+      control s, note: root + 19
+    end
+  end
+  sleep 4
+end
+
+# ============================================================
+# MELODY
+# ============================================================
+
+# Arp: mirrored pentatonic, shared tick/look counter drops in
+# octave jumps, dotted-8th echo does the rest
+live_loop :arp, sync: :downbeat do
+  stop if get[:section] == :done
+  if get[:section] == :drop
+    use_synth :blade
+    notes = (scale :e4, :minor_pentatonic, num_octaves: 2).mirror
+    with_fx :echo, phase: 0.375, decay: 4, mix: 0.3 do
+      16.times do
+        n   = notes.tick(:arp)
+        oct = (ring 0, 0, 0, 12, 0, 0, 0, 0)[look(:arp)]
+        play n + oct, release: 0.25, cutoff: rrand(92, 112),
+             amp: 0.38, pan: rrand(-0.5, 0.5)
+        sleep 0.25
+      end
+    end
+  else
+    sleep 4
+  end
+end
+
+# Lead: one held dsaw per bar, control + note_slide glides it
+# through the riff like a monosynth with portamento
+live_loop :lead, sync: :downbeat do
+  stop if get[:section] == :done
+  if get[:section] == :finale
+    use_synth :dsaw
+    use_synth_defaults detune: 0.12, amp: 0.45, cutoff: 108
+    oct = (get[:bar] % 8) < 4 ? 0 : 12
+    with_fx :echo, phase: 0.75, decay: 3, mix: 0.25 do
+      s = synth :dsaw, note: note(:e4) + oct, sustain: 3.6,
+                release: 0.4, note_slide: 0.08
+      (ring :e4, :g4, :a4, :b4, :d5, :b4, :a4, :g4).each do |n|
+        control s, note: note(n) + oct
+        sleep 0.5
+      end
+    end
+  else
+    sleep 4
+  end
+end
+
+# Music box: seeded shuffle of the pentatonic, gated by a
+# euclidean spread(5,8) — tick and ring-index share one counter
+live_loop :musicbox, sync: :downbeat do
+  stop if get[:section] == :done
+  if [:intro, :breakdown, :outro].include? get[:section]
+    use_synth :pluck
+    notes = (scale :e4, :minor_pentatonic, num_octaves: 2).shuffle
+    with_fx :echo, phase: 0.75, decay: 6, mix: 0.4 do
+      8.times do
+        idx = tick(:mb)
+        play notes[idx], amp: rrand(0.2, 0.45), release: rrand(0.8, 2),
+             pan: rrand(-0.7, 0.7) if (spread 5, 8)[idx]
+        sleep 0.5
+      end
+    end
+  else
+    sleep 4
+  end
+end
+
+# ============================================================
+# ATMOSPHERE & TRANSITIONS
+# ============================================================
+
+# Texture bed: vinyl hiss, reversed/stretched ambience, rpitched bells
+live_loop :texture, sync: :downbeat do
+  stop if get[:section] == :done
+  if [:intro, :breakdown, :outro].include? get[:section]
+    with_fx :reverb, room: 1, mix: 0.8 do
+      sample :vinyl_hiss, amp: 0.35
+      sample :ambi_lunar_land, rate: (ring 0.5, 1, -0.5).tick(:tx),
+             start: 0.1, finish: 0.9, amp: 0.5, pan: rrand(-0.6, 0.6) if one_in(2)
+      sample :perc_bell, rpitch: (ring 0, 7, 12, 5).choose,
+             amp: rrand(0.15, 0.3), pan: rrand(-0.8, 0.8) if one_in(3)
+    end
+  end
+  sleep 4
+end
+
+# Riser: cued by the conductor 4 bars before each big section.
+# A noise sweep (amp_slide + cutoff_slide on a controlled node),
+# a snare roll in its own thread, and an `at`-scheduled reversed
+# crash that lands right on the downbeat.
+live_loop :riser do
+  sync :riser_go
+  stop if get[:section] == :done
+  puts "  ⟰ riser"
+  s = synth :noise, sustain: 16, release: 0.1, res: 0.6,
+            cutoff: 55, cutoff_slide: 16, amp: 0.03, amp_slide: 14
+  control s, cutoff: 125, amp: 0.5
+  at 14 do
+    sample :drum_splash_soft, rate: -0.6, amp: 0.8
+  end
+  in_thread do
+    sleep 8
+    16.times do |i|
+      sample :sn_dolf, amp: 0.15 + (i * 0.05), rate: 1.2, pan: rrand(-0.3, 0.3)
+      sleep 0.5
+    end
+  end
+end

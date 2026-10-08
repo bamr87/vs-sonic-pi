@@ -2,24 +2,58 @@ import * as vscode from "vscode";
 import { readdir } from "fs/promises";
 import { join } from "path";
 import { ConnectionManager } from "../connection/ConnectionManager.js";
-import { runBuffer, runSelection } from "./run.js";
+import { DiagnosticsProvider } from "../language/DiagnosticsProvider.js";
+import { LogManager } from "../log/LogManager.js";
+import { runBuffer, runSelection, runCode } from "./run.js";
+import { beautifyBuffer } from "./beautify.js";
 import { stopAllJobs } from "./stop.js";
+
+const NEW_LOOP_TEMPLATE = `# Welcome to Sonic Pi!
+# Press F5 to run, Shift+F5 to stop.
+
+use_bpm 120
+
+live_loop :beat do
+  sample :bd_haus
+  sleep 1
+end
+
+live_loop :melody, sync: :beat do
+  use_synth :prophet
+  play scale(:e3, :minor_pentatonic).choose, release: 0.5, amp: 0.7
+  sleep 0.5
+end
+`;
 
 export class CommandHandler implements vscode.Disposable {
   private _disposables: vscode.Disposable[] = [];
 
   constructor(
     private readonly _connectionManager: ConnectionManager,
-    private readonly _extensionPath?: string
+    private readonly _diagnostics?: DiagnosticsProvider,
+    private readonly _logManager?: LogManager
   ) {}
 
   registerAll(context: vscode.ExtensionContext): void {
     this._register(context, "sonicpi.run", () =>
-      this.withConnectionGuard(() => runBuffer(this._connectionManager))
+      this.withConnectionGuard(() =>
+        runBuffer(this._connectionManager, this._diagnostics)
+      )
     );
 
     this._register(context, "sonicpi.runSelection", () =>
-      this.withConnectionGuard(() => runSelection(this._connectionManager))
+      this.withConnectionGuard(() =>
+        runSelection(this._connectionManager, this._diagnostics)
+      )
+    );
+
+    this._register(
+      context,
+      "sonicpi.runLiveLoop",
+      (uri: vscode.Uri, startLine: number, endLine: number) =>
+        this.withConnectionGuard(() =>
+          this.runLiveLoop(uri, startLine, endLine)
+        )
     );
 
     this._register(context, "sonicpi.stop", () =>
@@ -34,12 +68,28 @@ export class CommandHandler implements vscode.Disposable {
       this._connectionManager.disconnect()
     );
 
+    this._register(context, "sonicpi.restartDaemon", () =>
+      vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: "Restarting Sonic Pi daemon…",
+        },
+        () => this._connectionManager.restartDaemon()
+      )
+    );
+
+    this._register(context, "sonicpi.newLoop", () => this.newLoopFile());
+
+    this._register(context, "sonicpi.openLog", () =>
+      this._logManager?.show()
+    );
+
     this._register(context, "sonicpi.openExamples", () =>
       this.openExamples(context)
     );
 
     this._register(context, "sonicpi.beautify", () =>
-      this.withConnectionGuard(() => this.beautify())
+      this.withConnectionGuard(() => beautifyBuffer(this._connectionManager))
     );
 
     this._register(context, "sonicpi.startRecording", () =>
@@ -88,6 +138,30 @@ export class CommandHandler implements vscode.Disposable {
     await action();
   }
 
+  private async runLiveLoop(
+    uri: vscode.Uri,
+    startLine: number,
+    endLine: number
+  ): Promise<void> {
+    const document = await vscode.workspace.openTextDocument(uri);
+    const range = new vscode.Range(
+      startLine,
+      0,
+      Math.min(endLine, document.lineCount - 1),
+      Number.MAX_SAFE_INTEGER
+    );
+    const code = document.getText(document.validateRange(range));
+    await runCode(this._connectionManager, code, uri, this._diagnostics);
+  }
+
+  private async newLoopFile(): Promise<void> {
+    const document = await vscode.workspace.openTextDocument({
+      language: "sonicpi",
+      content: NEW_LOOP_TEMPLATE,
+    });
+    await vscode.window.showTextDocument(document);
+  }
+
   private async openExamples(
     context: vscode.ExtensionContext
   ): Promise<void> {
@@ -117,42 +191,6 @@ export class CommandHandler implements vscode.Disposable {
     if (picked?.detail) {
       const doc = await vscode.workspace.openTextDocument(picked.detail);
       await vscode.window.showTextDocument(doc);
-    }
-  }
-
-  private async beautify(): Promise<void> {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor) return;
-
-    const code = editor.document.getText();
-    const bufferId = "vscode-beautify";
-
-    const transport = this._connectionManager.transport!;
-
-    const replacePromise = new Promise<string>((resolve) => {
-      const timeout = setTimeout(() => {
-        disposable.dispose();
-        resolve(code);
-      }, 5000);
-
-      const disposable = transport.onMessage("/buffer/replace", (msg) => {
-        clearTimeout(timeout);
-        disposable.dispose();
-        resolve(String(msg.args[1] ?? code));
-      });
-    });
-
-    await transport.send("/buffer-beautify", bufferId, code);
-
-    const beautified = await replacePromise;
-    if (beautified !== code) {
-      const fullRange = new vscode.Range(
-        editor.document.positionAt(0),
-        editor.document.positionAt(code.length)
-      );
-      await editor.edit((editBuilder) => {
-        editBuilder.replace(fullRange, beautified);
-      });
     }
   }
 

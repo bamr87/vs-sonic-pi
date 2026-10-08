@@ -46,7 +46,7 @@ export class Heartbeat implements vscode.Disposable {
       this._timer = undefined;
     }
     if (this._client) {
-      this._client.close().catch(() => {});
+      this._client.close()?.catch(() => {});
       this._client = undefined;
     }
   }
