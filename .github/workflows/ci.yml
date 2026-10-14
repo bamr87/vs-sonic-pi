@@ -33,7 +33,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: ["20", "22"]
-    uses: bamr87/bamr87/.github/workflows/standard-ci.yml@main
+    uses: bamr87/bamr87/.github/workflows/standard-ci.yml@v2
     with:
       node-version: ${{ matrix.node-version }}
     secrets: inherit
