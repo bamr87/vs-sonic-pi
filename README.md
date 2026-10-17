@@ -1,8 +1,12 @@
 # Sonic Pi for VS Code
 
-**Code. Music. Live.** — Write and perform [Sonic Pi](https://sonic-pi.net) music directly from VS Code.
+> VS Code extension to write and perform Sonic Pi music live: IntelliSense, hover docs, built-in tutorial, OSC control.
 
----
+[![CI](https://github.com/bamr87/vs-sonic-pi/actions/workflows/ci.yml/badge.svg)](https://github.com/bamr87/vs-sonic-pi/actions/workflows/ci.yml) [![License](https://img.shields.io/github/license/bamr87/vs-sonic-pi)](LICENSE)
+
+## Overview
+
+**Code. Music. Live.** — Write and perform [Sonic Pi](https://sonic-pi.net) music directly from VS Code.
 
 ## Features
 
@@ -173,11 +177,32 @@ The extension detects the Codespace environment automatically and configures the
 
 ---
 
+## Project structure
+
+| Path | What it is |
+|---|---|
+| `src/` | Extension source (TypeScript) |
+| `syntaxes/`, `language-configuration.json` | Sonic Pi grammar and editor behaviour |
+| `docs/`, `media/`, `images/` | Built-in tutorial content and assets |
+| `examples/` | Sample `.spi` files |
+| `test/` | Vitest suites |
+
+## Development
+
+```bash
+npm install
+npm test
+```
+
 ## Contributing
 
 Contributions are welcome! Please open an issue or pull request on [GitHub](https://github.com/bamr87/vs-sonic-pi).
 
 ---
+
+## Changelog
+
+Notable changes are recorded in [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
@@ -191,3 +216,8 @@ Tutorial content is derived from the [Sonic Pi](https://sonic-pi.net) project by
 
 - [Sonic Pi](https://sonic-pi.net) by Sam Aaron — the live coding music synthesizer that makes this extension possible
 - The Sonic Pi community for the incredible documentation and examples
+
+---
+
+<!-- bamr87-portfolio-footer -->
+Part of the [bamr87 portfolio](https://github.com/bamr87) — browse every project on [Amr's GitHub profile](https://github.com/bamr87).
