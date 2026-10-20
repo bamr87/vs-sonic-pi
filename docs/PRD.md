@@ -813,7 +813,7 @@ vs-sonic-pi/
 ├── esbuild.config.mjs           # Build config
 ├── .eslintrc.json
 ├── .prettierrc
-├── PRD.md                       # This document
+├── docs/PRD.md               # This document
 └── LICENSE
 ```
 

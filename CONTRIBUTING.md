@@ -54,7 +54,7 @@ src/
 └── ui/                   # Status bar, tree views, webviews
 ```
 
-See [docs/00-index.md](docs/00-index.md) for detailed architecture documentation and the [PRD](PRD.md) for the full product requirements.
+See [docs/00-index.md](docs/00-index.md) for detailed architecture documentation and the [PRD](docs/PRD.md) for the full product requirements.
 
 ## Code Style
 
