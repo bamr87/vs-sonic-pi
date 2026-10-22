@@ -1,5 +1,7 @@
 # Security Policy
 
+> Which versions receive security fixes, how to report a vulnerability privately, and the extension's local security surface.
+
 ## Supported Versions
 
 | Version | Supported          |

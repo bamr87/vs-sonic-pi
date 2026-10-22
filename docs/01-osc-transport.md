@@ -1,5 +1,7 @@
 # OSC Transport Layer
 
+> `OscTransport`, the low-level OSC-over-UDP send/receive layer that wraps `node-osc` and carries all of the extension's network I/O.
+
 **Module:** `src/connection/OscTransport.ts`  
 **Phase:** 1 (MVP)  
 **Dependencies:** `node-osc`, Node.js `dgram` (transitive)
