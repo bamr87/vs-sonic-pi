@@ -1,5 +1,7 @@
 # Log Manager
 
+> `LogManager`, which receives `/multi_message`, `/info` and `/error` from the server and renders them in a VS Code Output channel with timestamps, type prefixes and log-level filtering.
+
 **Modules:** `src/log/LogManager.ts`, `src/log/LogFormatter.ts`  
 **Phase:** 1 (MVP)  
 **Dependencies:** `ConnectionManager`, `OscTransport`, `ConfigManager`

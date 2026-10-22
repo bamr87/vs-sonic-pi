@@ -1,5 +1,7 @@
 # 10. Codespaces Support and Remote Audio Streaming
 
+> Running the extension in GitHub Codespaces: remote/container environment detection, the devcontainer's headless audio stack, streamed audio playback and stale port-file recovery.
+
 ## Purpose
 
 This module group enables running the extension in GitHub Codespaces where no local audio hardware is available. It provides:

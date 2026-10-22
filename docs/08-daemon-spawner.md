@@ -1,5 +1,7 @@
 # Daemon Spawner & Port Discovery
 
+> `PortDiscovery`, which finds the ports the Sonic Pi server is using (port file, config, defaults), and `DaemonSpawner`, which can start `daemon.rb` without the Qt GUI.
+
 **Modules:** `src/connection/DaemonSpawner.ts`, `src/connection/PortDiscovery.ts`  
 **Phase:** Phase 1 (port discovery) / Phase 2 (daemon spawner)  
 **Dependencies:** `ConfigManager`, Node.js `child_process`, `fs`, `path`

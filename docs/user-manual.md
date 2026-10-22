@@ -1,5 +1,7 @@
 # Sonic Pi for VS Code — User Manual
 
+> How to install, connect and use the extension — editor features, connection states, commands, configuration, the built-in tutorial, examples, recording and troubleshooting.
+
 ## Table of Contents
 
 1. [Installation](#installation)
@@ -20,7 +22,7 @@
 
 ### Prerequisites
 
-- **VS Code** 1.85 or later
+- **VS Code** 1.109 or later
 - **Sonic Pi** v4.x installed and running on your machine
   - Download from [sonic-pi.net](https://sonic-pi.net)
   - macOS, Windows, and Linux are supported
@@ -159,38 +161,20 @@ The status bar shows the current state:
 
 ## Commands Reference
 
-All commands are available from the Command Palette (`Ctrl+Shift+P`).
+All commands are available from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) under **Sonic Pi:**. The everyday ones:
 
-| Command | Keybinding | Description |
-|---------|-----------|-------------|
-| **Sonic Pi: Run** | `F5` | Run the current buffer |
-| **Sonic Pi: Run Selection** | `Ctrl+F5` / `Cmd+F5` | Run only the selected code |
-| **Sonic Pi: Stop** | `Shift+F5` | Stop all running jobs |
-| **Sonic Pi: Connect** | — | Connect to Sonic Pi |
-| **Sonic Pi: Disconnect** | — | Disconnect from Sonic Pi |
-| **Sonic Pi: Open Examples** | — | Browse and open bundled examples |
-| **Sonic Pi: Open Tutorial** | — | Open the built-in tutorial |
-| **Sonic Pi: Beautify Buffer** | — | Auto-format the current buffer |
-| **Sonic Pi: Start Recording** | — | Begin recording audio output |
-| **Sonic Pi: Stop Recording** | — | Stop recording |
-| **Sonic Pi: Save Recording** | — | Save the recording as a WAV file |
+- **Sonic Pi: Run** (`F5`), **Run Selection** (`Ctrl+F5` / `Cmd+F5`) and **Stop** (`Shift+F5`) — also on the editor title bar and the editor context menu.
+- **Sonic Pi: Connect** / **Disconnect** / **Restart Daemon** — manage the connection to the Sonic Pi server.
+- **Sonic Pi: Open Tutorial**, **Open Examples**, **Language Reference** and **New Loop File** — learn and start writing.
+- **Sonic Pi: Start Recording** / **Stop Recording** / **Save Recording** — capture audio output as a WAV file.
+
+The complete list, with each command's ID and the menus that show it, is generated from `package.json` in [reference/commands.md](reference/commands.md); the default shortcuts are in [reference/keybindings.md](reference/keybindings.md).
 
 ---
 
 ## Configuration Reference
 
-All settings are under the `sonicpi.*` namespace.
-
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `sonicpi.osc.host` | string | `127.0.0.1` | IP address of the Sonic Pi server |
-| `sonicpi.osc.sendPort` | number | `4557` | UDP port to send OSC commands |
-| `sonicpi.osc.listenPort` | number | `4558` | UDP port to listen for responses |
-| `sonicpi.osc.daemonPort` | number | `0` | Daemon port (0 = auto-discover) |
-| `sonicpi.autoConnect` | boolean | `true` | Auto-connect when a .spi file opens |
-| `sonicpi.heartbeatInterval` | number | `2000` | Milliseconds between heartbeats |
-| `sonicpi.sonicPiPath` | string | `""` | Path to Sonic Pi (empty = auto-detect) |
-| `sonicpi.logLevel` | string | `info` | Minimum log level: debug, info, warning, error |
+All settings are under the `sonicpi.*` namespace. The ones you are most likely to change are `sonicpi.autoConnect`, the `sonicpi.osc.*` ports, `sonicpi.sonicPiPath` and `sonicpi.logLevel`. Every setting — type, default, range and allowed values — is listed in [reference/settings.md](reference/settings.md), generated from `package.json`.
 
 ### Example: Custom Sonic Pi Path
 

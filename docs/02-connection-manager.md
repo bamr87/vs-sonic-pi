@@ -1,5 +1,7 @@
 # Connection Manager
 
+> `ConnectionManager`, the state machine for the connection lifecycle (Disconnected → Connecting → Connected → Disconnecting) that orchestrates port discovery, handshake, heartbeat and health monitoring.
+
 **Module:** `src/connection/ConnectionManager.ts`  
 **Phase:** 1 (MVP)  
 **Dependencies:** `OscTransport`, `Heartbeat`, `PortDiscovery`, `ConfigManager`

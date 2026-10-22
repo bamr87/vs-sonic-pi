@@ -1,5 +1,7 @@
 # Contributing to Sonic Pi for VS Code
 
+> How to set up, build, test and lint the extension locally, and the branch, commit and pull request conventions for contributing.
+
 Thank you for your interest in contributing! This guide will help you get started.
 
 ## Development Setup
@@ -54,7 +56,7 @@ src/
 └── ui/                   # Status bar, tree views, webviews
 ```
 
-See [docs/00-index.md](docs/00-index.md) for detailed architecture documentation and the [PRD](PRD.md) for the full product requirements.
+See [docs/00-architecture.md](docs/00-architecture.md) for the architecture overview, the [docs index](docs/README.md) for every design document, and the [PRD](PRD.md) for the full product requirements. [AGENTS.md](AGENTS.md) is the canonical guide to the commands and conventions.
 
 ## Code Style
 

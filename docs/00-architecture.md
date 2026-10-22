@@ -1,8 +1,10 @@
-# Sonic Pi VS Code Extension — Functional Component Documentation
+# Sonic Pi VS Code Extension — Architecture Overview
 
-This directory contains the detailed design documentation for each functional component of the **vs-sonic-pi** extension. Each document is self-contained: it describes a module's purpose, public interface, internal design, configuration, data flow, error handling, and testing strategy.
+> How the extension's functional components fit together: the component map, a reading order for the design documents, and the cross-cutting disposable, error-reporting and event-flow patterns.
 
-For the high-level product requirements and architectural overview, see [PRD.md](../PRD.md).
+The numbered documents beside this one hold the detailed design of each functional component of the **vs-sonic-pi** extension. Each is self-contained: it describes a module's purpose, public interface, internal design, configuration, data flow, error handling, and testing strategy. Every document is listed, with its summary, in the [docs index](README.md).
+
+For the high-level product requirements, see [PRD.md](../PRD.md).
 
 ---
 
@@ -39,23 +41,6 @@ extension.ts (entry point)
     │
     └── ConfigManager ·············· 07-config-manager.md
 ```
-
----
-
-## Documents
-
-| # | Document | Component | Phase | Summary |
-|---|----------|-----------|-------|---------|
-| 01 | [OSC Transport](./01-osc-transport.md) | `OscTransport` | 1 (MVP) | Low-level UDP send/receive over OSC. Wraps `node-osc`. All network I/O flows through this layer. |
-| 02 | [Connection Manager](./02-connection-manager.md) | `ConnectionManager` | 1 (MVP) | State machine governing the connection lifecycle (Disconnected → Connecting → Connected → Disconnecting). Orchestrates port discovery, handshake, heartbeat, and health monitoring. |
-| 03 | [Command Handler](./03-command-handler.md) | `CommandHandler` | 1–3 | Maps VS Code commands (Run, Stop, Record, Beautify, etc.) to OSC messages. Reads editor state, guards against disconnected state, and handles responses. |
-| 04 | [Language Provider](./04-language-provider.md) | `LanguageProvider` | 1–2 | Syntax highlighting (TextMate grammar), code snippets, IntelliSense completions, hover documentation, and inline error diagnostics. |
-| 05 | [Log Manager](./05-log-manager.md) | `LogManager` | 1 (MVP) | Receives `/multi_message`, `/info`, and `/error` from the server. Formats and renders log output in a VS Code Output channel with timestamps, type prefixes, and log-level filtering. |
-| 06 | [Status Bar](./06-status-bar.md) | `StatusBarManager` | 1 (MVP) | Persistent status bar indicator showing connection state (icon + text). Click to connect or disconnect. |
-| 07 | [Configuration](./07-config-manager.md) | `ConfigManager` | 1 (MVP) | Typed, validated access to all `sonicpi.*` settings. Emits change events so modules can react without restart. |
-| 08 | [Daemon Spawner & Port Discovery](./08-daemon-spawner.md) | `PortDiscovery`, `DaemonSpawner` | 1–2 | Discovers which ports the Sonic Pi server is using (port file, config, defaults). Optionally spawns `daemon.rb` to start the server without the Qt GUI. |
-| 09 | [Sonic Pi Codebase Analysis](./09-sonic-pi-codebase-analysis.md) | *(reference)* | — | Deep analysis of the forked Sonic Pi repo. Catalogs every library, data file, and protocol detail that can be utilized or integrated into the extension. |
-| 10 | [Codespaces Support](./10-codespaces-support.md) | `environment`, `AudioStreamWebview`, devcontainer | 3 | Remote/container runtime support, streamed audio playback, and stale port-file recovery behavior. |
 
 ---
 
@@ -114,10 +99,4 @@ CommandHandler.runBuffer()
             └── (audio output via scsynth)
 ```
 
-### Phased Implementation
-
-| Phase | Components | Exit Criteria |
-|-------|------------|---------------|
-| **1 (MVP)** | OscTransport, ConnectionManager, Heartbeat, PortDiscovery (file + defaults), CommandHandler (Run, Stop), LogManager, StatusBar, ConfigManager, TextMate grammar, Snippets | User can run code, hear music, see logs, stop. |
-| **2 (V1)** | CompletionProvider, HoverProvider, DiagnosticsProvider, Run Selection, Examples, DaemonSpawner | Full language support. Published on Marketplace. |
-| **3 (Enhancements)** | Recording, Beautify, Tutorial webview, Cue log, MIDI monitor | Feature parity with native app. |
+The phased delivery plan these components were built to is in [PRD.md § 11](../PRD.md#11-phased-delivery-plan).

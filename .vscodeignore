@@ -17,3 +17,4 @@ eslint.config.mjs
 **/*.test.ts
 **/*.test.js
 **/*.map
+tools/**

@@ -1,5 +1,7 @@
 # Command Handler
 
+> `CommandHandler`, which maps VS Code commands (Run, Stop, Record, Beautify and the rest) to OSC messages, reads editor state, guards against a disconnected server and handles responses.
+
 **Module:** `src/commands/index.ts`, `src/commands/run.ts`, `src/commands/stop.ts`, `src/commands/record.ts`, `src/commands/beautify.ts`  
 **Phase:** 1 (MVP) for Run/Stop; Phase 2–3 for others  
 **Dependencies:** `ConnectionManager`, `OscTransport`, `ConfigManager`
