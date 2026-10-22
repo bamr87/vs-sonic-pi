@@ -1,5 +1,7 @@
 # Configuration Manager
 
+> `ConfigManager`, typed and validated access to every `sonicpi.*` setting, with change events so modules can react without a restart.
+
 **Module:** `src/config/ConfigManager.ts`  
 **Phase:** 1 (MVP)  
 **Dependencies:** VS Code `workspace.getConfiguration` API
@@ -58,83 +60,9 @@ class ConfigManager implements Disposable {
 
 ## Settings Reference
 
-All settings live under the `sonicpi` namespace in VS Code's `settings.json`.
+The settings themselves — keys, types, defaults, ranges and allowed values — are generated from `package.json` into [reference/settings.md](reference/settings.md); that file, not this one, is the reference.
 
-| Key | Type | Default | Validation | Description |
-|-----|------|---------|------------|-------------|
-| `sonicpi.osc.host` | `string` | `"127.0.0.1"` | Non-empty string | IP address or hostname of the Sonic Pi server. Almost always localhost. |
-| `sonicpi.osc.sendPort` | `number` | `4557` | 1–65535 | UDP port the extension sends commands to (Sonic Pi server's listen port). |
-| `sonicpi.osc.listenPort` | `number` | `4558` | 1–65535 | UDP port the extension binds to for receiving server responses. |
-| `sonicpi.osc.daemonPort` | `number` | `0` | 0–65535 | Port for `/daemon/keep-alive` messages. `0` means auto-discover from port file or use `sendPort`. |
-| `sonicpi.autoConnect` | `boolean` | `true` | — | Whether to automatically connect when a `.spi` file is opened. |
-| `sonicpi.heartbeatInterval` | `number` | `30000` | 5000–120000 | Milliseconds between `/daemon/keep-alive` messages. |
-| `sonicpi.sonicPiPath` | `string` | `""` | Valid path or empty | Path to the Sonic Pi installation directory. Used by DaemonSpawner to locate `daemon.rb`. Empty means auto-detect. |
-| `sonicpi.logLevel` | `string` | `"info"` | One of: `debug`, `info`, `warning`, `error` | Minimum log level to display in the Output channel. |
-
-### package.json Declaration
-
-```jsonc
-"configuration": {
-  "title": "Sonic Pi",
-  "properties": {
-    "sonicpi.osc.host": {
-      "type": "string",
-      "default": "127.0.0.1",
-      "description": "IP address of the Sonic Pi server."
-    },
-    "sonicpi.osc.sendPort": {
-      "type": "number",
-      "default": 4557,
-      "minimum": 1,
-      "maximum": 65535,
-      "description": "UDP port to send OSC commands to."
-    },
-    "sonicpi.osc.listenPort": {
-      "type": "number",
-      "default": 4558,
-      "minimum": 1,
-      "maximum": 65535,
-      "description": "UDP port to listen for server responses."
-    },
-    "sonicpi.osc.daemonPort": {
-      "type": "number",
-      "default": 0,
-      "minimum": 0,
-      "maximum": 65535,
-      "description": "Port for keep-alive messages (0 = auto-discover)."
-    },
-    "sonicpi.autoConnect": {
-      "type": "boolean",
-      "default": true,
-      "description": "Automatically connect to Sonic Pi when a .spi file is opened."
-    },
-    "sonicpi.heartbeatInterval": {
-      "type": "number",
-      "default": 30000,
-      "minimum": 5000,
-      "maximum": 120000,
-      "description": "Milliseconds between keep-alive heartbeats."
-    },
-    "sonicpi.sonicPiPath": {
-      "type": "string",
-      "default": "",
-      "description": "Path to Sonic Pi installation (empty = auto-detect)."
-    },
-    "sonicpi.logLevel": {
-      "type": "string",
-      "default": "info",
-      "enum": ["debug", "info", "warning", "error"],
-      "enumDescriptions": [
-        "Show all messages including internal debug output.",
-        "Show user output, cues, syncs, and errors (default).",
-        "Show warnings and errors only.",
-        "Show errors only."
-      ],
-      "description": "Minimum log level to display in the Sonic Pi Log."
-    }
-  }
-}
-```
+`ConfigManager` also validates at read time: the three OSC ports are clamped to 1–65535 (`sonicpi.osc.daemonPort` allows `0`, meaning auto-discover), `sonicpi.heartbeatInterval` is clamped to 500–10000 ms, and an unknown `sonicpi.logLevel` falls back to `info`.
 
 ---
 
