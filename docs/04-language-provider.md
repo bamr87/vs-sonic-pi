@@ -160,7 +160,7 @@ Snippets provide quick scaffolding for common patterns.
 
 ### Data Source
 
-All completion data comes from `src/data/sonic-pi-data.json`, loaded once at activation. The data file contains four arrays: `synths`, `samples`, `fx`, and `lang` (DSL functions). See [PRD Section 8.1](../PRD.md) for the full schema.
+All completion data comes from `src/data/sonic-pi-data.json`, loaded once at activation. The data file contains four arrays: `synths`, `samples`, `fx`, and `lang` (DSL functions). See [PRD Section 8.1](PRD.md) for the full schema.
 
 ### Completion Contexts
 

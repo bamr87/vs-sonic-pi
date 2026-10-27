@@ -4,7 +4,7 @@
 
 The numbered documents beside this one hold the detailed design of each functional component of the **vs-sonic-pi** extension. Each is self-contained: it describes a module's purpose, public interface, internal design, configuration, data flow, error handling, and testing strategy. Every document is listed, with its summary, in the [docs index](README.md).
 
-For the high-level product requirements, see [PRD.md](../PRD.md).
+For the high-level product requirements, see [PRD.md](PRD.md).
 
 ---
 
@@ -48,7 +48,7 @@ extension.ts (entry point)
 
 For someone new to the codebase, the recommended reading order is:
 
-1. **[PRD.md](../PRD.md)** — Start here for the big picture: vision, architecture diagrams, requirements, and phased delivery plan.
+1. **[PRD.md](PRD.md)** — Start here for the big picture: vision, architecture diagrams, requirements, and phased delivery plan.
 2. **[01 — OSC Transport](./01-osc-transport.md)** — Understand the networking foundation.
 3. **[02 — Connection Manager](./02-connection-manager.md)** — Understand the state machine that everything else depends on.
 4. **[07 — Configuration](./07-config-manager.md)** — Understand how settings flow into all modules.
@@ -99,4 +99,4 @@ CommandHandler.runBuffer()
             └── (audio output via scsynth)
 ```
 
-The phased delivery plan these components were built to is in [PRD.md § 11](../PRD.md#11-phased-delivery-plan).
+The phased delivery plan these components were built to is in [PRD.md § 11](PRD.md#11-phased-delivery-plan).

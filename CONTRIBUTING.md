@@ -56,7 +56,7 @@ src/
 └── ui/                   # Status bar, tree views, webviews
 ```
 
-See [docs/00-architecture.md](docs/00-architecture.md) for the architecture overview, the [docs index](docs/README.md) for every design document, and the [PRD](PRD.md) for the full product requirements. [AGENTS.md](AGENTS.md) is the canonical guide to the commands and conventions.
+See [docs/00-architecture.md](docs/00-architecture.md) for the architecture overview, the [docs index](docs/README.md) for every design document, and the [PRD](docs/PRD.md) for the full product requirements. [AGENTS.md](AGENTS.md) is the canonical guide to the commands and conventions.
 
 ## Code Style
 

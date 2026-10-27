@@ -157,7 +157,7 @@ The extension detects the Codespace environment automatically and configures the
 
 ## Documentation
 
-The [documentation index](docs/README.md) lists every document in the repository: the [User Manual](docs/user-manual.md) for using the extension, the [architecture overview](docs/00-architecture.md) and numbered component designs for working on it, the generated reference above, and the [PRD](PRD.md).
+The [documentation index](docs/README.md) lists every document in the repository: the [User Manual](docs/user-manual.md) for using the extension, the [architecture overview](docs/00-architecture.md) and numbered component designs for working on it, the generated reference above, and the [PRD](docs/PRD.md).
 
 ## Project structure
 

@@ -18,7 +18,6 @@ Users start with the [user manual](user-manual.md). Contributors start with the 
 | [`CONTRIBUTING.md`](../CONTRIBUTING.md) | How to set up, build, test and lint the extension locally, and the branch, commit and pull request conventions for contributing. |
 | [`SECURITY.md`](../SECURITY.md) | Which versions receive security fixes, how to report a vulnerability privately, and the extension's local security surface. |
 | [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md) | The standards of behaviour for everyone taking part. |
-| [`PRD.md`](../PRD.md) | The product requirements for the Sonic Pi VS Code extension: vision and goals, users, functional requirements by phase, architecture, module specifications, data models, UX, the phased delivery plan and the testing strategy. |
 
 ### `docs/`
 
@@ -35,7 +34,11 @@ Users start with the [user manual](user-manual.md). Contributors start with the 
 | [`docs/08-daemon-spawner.md`](08-daemon-spawner.md) | `PortDiscovery`, which finds the ports the Sonic Pi server is using (port file, config, defaults), and `DaemonSpawner`, which can start `daemon.rb` without the Qt GUI. |
 | [`docs/09-sonic-pi-codebase-analysis.md`](09-sonic-pi-codebase-analysis.md) | A reference analysis of the forked Sonic Pi repository that catalogues every library, data file and protocol detail the extension can use or integrate. |
 | [`docs/10-codespaces-support.md`](10-codespaces-support.md) | Running the extension in GitHub Codespaces: remote/container environment detection, the devcontainer's headless audio stack, streamed audio playback and stale port-file recovery. |
+| [`docs/constitution.md`](constitution.md) | The rules every change to this repo must satisfy, whoever makes it — a human or an AI agent. Agents read this before [AGENTS.md](../AGENTS.md) conventions, the [PRD](PRD.md), or the [feature catalog](../features/features.yml). Ratified by… |
+| [`docs/PRD.md`](PRD.md) | The product requirements for the Sonic Pi VS Code extension: vision and goals, users, functional requirements by phase, architecture, module specifications, data models, UX, the phased delivery plan and the testing strategy. |
 | [`docs/user-manual.md`](user-manual.md) | How to install, connect and use the extension — editor features, connection states, commands, configuration, the built-in tutorial, examples, recording and troubleshooting. |
+| [`docs/adr/`](adr/README.md) | The index of architecture decision records: the decisions for vs-sonic-pi that are hard to reverse, one numbered file each. |
+| [`docs/amendments/`](amendments/README.md) | The append-only log of numbered amendments to the constitution, each ratified by the maintainer merging its PR. |
 
 ### `docs/reference/`
 

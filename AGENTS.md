@@ -48,7 +48,7 @@ Docs gates: `python3 tools/unwrap-prose.py --check` (one paragraph per line; CI 
 
 - **Backlog of record:** GitHub Issues (no file backlog). Use the bug report and feature request templates.
 - **Definition of Done:** the checklist in `.github/pull_request_template.md` (lint, build, test, manual check in the Extension Development Host), plus the "done" bar above.
-- **Decisions:** there is no ADR log yet; a decision that is hard to reverse gets one at `docs/adr/NNNN-slug.md`, indexed in `docs/adr/README.md` (UPS-WORK-04).
+- **Decisions:** a decision that is hard to reverse gets an ADR at `docs/adr/NNNN-slug.md`, indexed in [`docs/adr/README.md`](docs/adr/README.md) (UPS-WORK-04).
 - **Commits:** imperative subject under 72 characters, one logical change per commit, issues referenced as `(#N)` ([CONTRIBUTING.md](CONTRIBUTING.md)); recent history uses Conventional Commit prefixes (`docs(readme): …`, `ci: …`, `chore(deps): …`).
 - **Branches:** `feature/`, `fix/`, `docs/` or `chore/` off `main`; open a pull request, never push to `main` directly.
 - **Changelog and releases:** `CHANGELOG.md` is kept by hand in Keep a Changelog format — add entries under `[Unreleased]`. Pushing a `v*` tag runs `.github/workflows/release.yml`, which builds, tests, packages and publishes to the Marketplace with the `VSCE_PAT` secret.
@@ -66,7 +66,7 @@ Docs gates: `python3 tools/unwrap-prose.py --check` (one paragraph per line; CI 
 - Commands that talk to the server go through `withConnectionGuard` in `src/commands/index.ts`, which offers **Connect** when the extension is disconnected instead of failing silently; wrap new ones the same way ([docs/03-command-handler.md](docs/03-command-handler.md)).
 - The extension only talks to a Sonic Pi server on the configured host (default `127.0.0.1`); it makes no other network connections ([SECURITY.md](SECURITY.md)).
 - Language data (synths, samples, FX, scales, chords, functions) comes from `src/data/sonic-pi-data.json`; regenerate it from the Sonic Pi source rather than editing it.
-- The component designs are in `docs/` — start with [docs/00-architecture.md](docs/00-architecture.md); [PRD.md](PRD.md) holds the product requirements.
+- The component designs are in `docs/` — start with [docs/00-architecture.md](docs/00-architecture.md); [docs/PRD.md](docs/PRD.md) holds the product requirements.
 
 ## Fleet context
 
@@ -74,4 +74,8 @@ Member of the bamr87 fleet, managed by the [bamr87/bamr87 hub](https://github.co
 
 ## Standard deviations
 
-none
+- UPS-REPO-02: tests live under `test/` (grandfathered), not `tests/`.
+
+## Governance
+
+Read [`docs/constitution.md`](docs/constitution.md) before changing anything: it is the highest-precedence rule set here and wins over this file when they disagree. It changes only through a numbered record in [`docs/amendments/`](docs/amendments/), ratified by the maintainer merging the PR; agents propose, never merge. Every user-facing feature has a stable id in [`features/features.yml`](features/features.yml) with `status`, location and the PRD requirement ids it serves; the PRD's "Feature catalog" block is generated from it (`python3 <bamr87/bamr87>/tools/governance_lint.py prd-sync . --write`; check with `… check .`). Never hand-edit that block or `CHANGELOG.md`.

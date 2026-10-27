@@ -1,0 +1,217 @@
+# =============================================================================
+# features/features.yml — THE FEATURE INDEX for bamr87/vs-sonic-pi
+# =============================================================================
+# kit: verify v0.1.0 · governance v0.1.0 (bamr87/bamr87 templates/verify/, templates/governance/)
+#
+# One entry per user-facing capability, grounded in this repo's PRD, README and
+# code: what it does, where it lives (`link`), where it is explained (`docs`),
+# its `status` (shipped | partial | planned | deprecated | tbd) and the PRD
+# requirements it serves (`prd:`; TBD = not yet traced). Ids are STABLE: never
+# renumber or reuse one. The PRD's "Feature catalog" block is generated from
+# this file — edit here, then run:
+#   python3 <bamr87/bamr87>/tools/governance_lint.py prd-sync . --write
+# Validate: python3 <hub>/tools/governance_lint.py check .  ·  <hub>/tools/features_index.py check .
+# Schema: features/v1 (field reference: bamr87/bamr87 templates/verify/features.template.yml)
+# =============================================================================
+schema: features/v1
+repo: bamr87/vs-sonic-pi
+
+features:
+  - id: SONICPI-001
+    title: "Run code"
+    description: "Send the current file or selection to Sonic Pi via OSC. Command registered in package.json."
+    implemented: true
+    status: shipped
+    prd: [FR-1]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-002
+    title: "Stop all"
+    description: "Send /stop-all-jobs to stop all running threads. Command registered in package.json."
+    implemented: true
+    status: shipped
+    prd: [FR-2]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-003
+    title: "Log / output panel"
+    description: "Render /multi_message, /info and /error in a VS Code Output channel. Command registered in package.json."
+    implemented: true
+    status: shipped
+    prd: [FR-3]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-004
+    title: "Syntax highlighting"
+    description: "TextMate grammar for the Sonic Pi Ruby DSL. Command registered in package.json."
+    implemented: true
+    status: shipped
+    prd: [FR-4]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-005
+    title: "Server detection"
+    description: "/ping → /ack handshake with a clear message if the server is not found. Command registered in package.json."
+    implemented: true
+    status: shipped
+    prd: [FR-5]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-006
+    title: "Keep-alive heartbeat"
+    description: "Send /daemon/keep-alive about every 30 s. Command registered in package.json."
+    implemented: true
+    status: shipped
+    prd: [FR-6]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-007
+    title: "Configuration"
+    description: "Settings for OSC host/ports with defaults. Command registered in package.json."
+    implemented: true
+    status: shipped
+    prd: [FR-7]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-008
+    title: "Run / Stop commands"
+    description: "Commands with keybindings (F5 run, Shift+F5 stop). Command registered in package.json."
+    implemented: true
+    status: shipped
+    prd: [FR-8]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-009
+    title: "Autocomplete"
+    description: "Completions for synths, samples, FX and DSL keywords. Not confirmed in code (TBD)."
+    implemented: false
+    status: tbd
+    prd: [FR-9]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-010
+    title: "Hover documentation"
+    description: "Short docs for core functions, synths, samples. Not confirmed in code (TBD)."
+    implemented: false
+    status: tbd
+    prd: [FR-10]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-011
+    title: "Examples"
+    description: "Command to open bundled example files (sonicpi.openExamples). Command registered in package.json."
+    implemented: true
+    status: shipped
+    prd: [FR-11]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-012
+    title: "Run selection"
+    description: "Run only highlighted code (sonicpi.runSelection). Command registered in package.json."
+    implemented: true
+    status: shipped
+    prd: [FR-12]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-013
+    title: "Error reporting"
+    description: "Parse /error into the Problems panel and inline diagnostics. Not confirmed in code (TBD)."
+    implemented: false
+    status: tbd
+    prd: [FR-13]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-014
+    title: "Status bar"
+    description: "Connection state and active run count. Not confirmed in code (TBD)."
+    implemented: false
+    status: tbd
+    prd: [FR-14]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-015
+    title: "Daemon auto-start"
+    description: "Optionally spawn daemon.rb (sonicpi.restartDaemon exists). Not confirmed in code (TBD)."
+    implemented: false
+    status: tbd
+    prd: [FR-15]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-016
+    title: "Recording"
+    description: "Start/stop/save recording (sonicpi.startRecording/stopRecording/saveRecording). Command registered in package.json."
+    implemented: true
+    status: shipped
+    prd: [FR-16]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-017
+    title: "Beautify / Align"
+    description: "/beautify-buffer round-trip (sonicpi.beautify). Command registered in package.json."
+    implemented: true
+    status: shipped
+    prd: [FR-17]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-018
+    title: "Tutorial webview"
+    description: "Panel linking to the Sonic Pi tutorial (sonicpi.openTutorial). Command registered in package.json."
+    implemented: true
+    status: shipped
+    prd: [FR-18]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-019
+    title: "Cue log"
+    description: "Separate panel for incoming OSC cues. Not confirmed in code (TBD)."
+    implemented: false
+    status: tbd
+    prd: [FR-19]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-020
+    title: "MIDI monitor"
+    description: "Show MIDI in/out events. Not confirmed in code (TBD)."
+    implemented: false
+    status: tbd
+    prd: [FR-20]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-021
+    title: "Audio scope"
+    description: "Waveform/spectrum visualizer (stretch; sonicpi.openAudioStream exists). Not confirmed in code (TBD)."
+    implemented: false
+    status: tbd
+    prd: [FR-21]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
+  - id: SONICPI-022
+    title: "Multi-buffer workspaces"
+    description: "Map editor tabs to Sonic Pi workspaces. Not confirmed in code (TBD)."
+    implemented: false
+    status: tbd
+    prd: [FR-22]
+    surface: ui
+    link: "src"
+    docs: "docs/PRD.md"
