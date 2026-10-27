@@ -1,5 +1,7 @@
 # Language Provider
 
+> The language support for `.spi` files: TextMate syntax highlighting, code snippets, IntelliSense completions, hover documentation and inline error diagnostics.
+
 **Modules:**  
 - `syntaxes/sonicpi.tmLanguage.json` (TextMate grammar)  
 - `src/language/CompletionProvider.ts`  

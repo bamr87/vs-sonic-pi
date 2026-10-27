@@ -1,5 +1,7 @@
 # Product Requirements Document: Sonic Pi VS Code Extension
 
+> The product requirements for the Sonic Pi VS Code extension: vision and goals, users, functional requirements by phase, architecture, module specifications, data models, UX, the phased delivery plan and the testing strategy.
+
 **Version:** 2.0  
 **Status:** Draft  
 **Last Updated:** March 2025  

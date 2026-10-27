@@ -372,6 +372,8 @@
     "build": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
     "watch": "npm run build -- --watch",
     "lint": "eslint src/",
+    "docs:reference": "node scripts/gen-reference-docs.mjs",
+    "docs:check": "node scripts/gen-reference-docs.mjs --check",
     "test": "vitest run",
     "test:watch": "vitest",
     "extract-data": "tsx scripts/extract-sonic-pi-data.ts",

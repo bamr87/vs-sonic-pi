@@ -1,5 +1,7 @@
 # Sonic Pi Codebase Analysis — Libraries & Components for Extension Integration
 
+> A reference analysis of the forked Sonic Pi repository that catalogues every library, data file and protocol detail the extension can use or integrate.
+
 **Source:** [bamr87/sonic-pi](https://github.com/bamr87/sonic-pi) (fork of [sonic-pi-net/sonic-pi](https://github.com/sonic-pi-net/sonic-pi))  
 **Branch:** `dev`  
 **Sonic Pi version:** v4.6.0 "Tuplet"

@@ -1,5 +1,7 @@
 # Status Bar Manager
 
+> `StatusBarManager`, the persistent status bar indicator that shows the connection state and connects or disconnects on click.
+
 **Module:** `src/ui/StatusBarManager.ts`  
 **Phase:** 1 (MVP)  
 **Dependencies:** `ConnectionManager`

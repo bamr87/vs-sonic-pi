@@ -63,20 +63,16 @@ between 0 and 7 (remember that we start counting at 0). Sonic Pi has a handy fun
 2. We define our `slice_size` which is 1/8 or 0.125. The `slice_size` is
 necessary for us to convert our `slice_idx` into a value between 0 and 1 so we can use it as our `start:` opt.
 
-3. We calculate the start position `s` by multiplying the `slice_idx` by
-   the `slice_size`.
+3. We calculate the start position `s` by multiplying the `slice_idx` by the `slice_size`.
  
-4. We calculate the finish position `f` by adding the `slice_size` to
-   the start position `s`.
+4. We calculate the finish position `f` by adding the `slice_size` to the start position `s`.
 
-5. We can now play the sample slice by plugging in the `s` and `f`
-   values into the `start:` and `finish:` opts for `sample`.
+5. We can now play the sample slice by plugging in the `s` and `f` values into the `start:` and `finish:` opts for `sample`.
 
 6. Before we play the next slice we need to know how long to `sleep`
 which should be the duration of the sample slice.  Luckily, Sonic Pi has us covered with `sample_duration` which accepts all the same opts as `sample` and simply returns the duration. Therefore, by passing `sample_duration` our `start:` and `finish:` opts, we can find out the duration of a single slice.
 
-7. We wrap all of this code in a `live_loop` so that we continue to pick
-   new random slices to play.
+7. We wrap all of this code in a `live_loop` so that we continue to pick new random slices to play.
 
 
 ## Bringing it all together

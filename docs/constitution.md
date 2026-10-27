@@ -3,14 +3,14 @@
 # vs-sonic-pi — Constitution
 
 > The rules every change to this repo must satisfy, whoever makes it — a human or an AI agent.
-> Agents read this before [AGENTS.md](../AGENTS.md) conventions, the [PRD](../PRD.md), or the
+> Agents read this before [AGENTS.md](../AGENTS.md) conventions, the [PRD](PRD.md), or the
 > [feature catalog](../features/features.yml). Ratified by merged PR; amended only per § 8.
 
 ## 1. Mission
 
 Build a VS Code extension that provides a first-class Sonic Pi experience inside Visual Studio Code, equivalent in capability to the native Sonic Pi GUI for writing, running, and live-coding music. The extension communicates with the existing Sonic Pi server (Ruby + SuperCollider) via its OSC API so users can code in VS Code while retaining full compatibility with Sonic Pi's language, synths, samples, and live loops.
 
-_Source: [PRD.md](../PRD.md)._
+_Source: [PRD.md](PRD.md)._
 
 ## 2. Invariants (non-negotiable)
 
@@ -24,7 +24,7 @@ When two documents disagree, the higher one wins and the lower one is fixed in t
 
 1. This constitution (and its ratified amendments in [docs/amendments/](amendments/))
 2. [AGENTS.md](../AGENTS.md) — how to work here (commands, conventions, Definition of Done)
-3. The PRD ([`PRD.md`](../PRD.md)) — what the product must do (requirement ids `FRn` / `NFRn`)
+3. The PRD ([`PRD.md`](PRD.md)) — what the product must do (requirement ids `FRn` / `NFRn`)
 4. [features/features.yml](../features/features.yml) — what it does today (stable feature ids)
 5. ADRs in `docs/adr/` (none yet) and specs — why and how a specific change was made
 6. Code, tests, generated files
@@ -74,11 +74,9 @@ Every PR passes the checks the repo's guide names:
 
 This constitution changes only through a numbered record in [docs/amendments/](amendments/) (`NNNN-kebab-slug.md`, copied from [0000-template.md](amendments/0000-template.md)):
 
-1. **Propose** — open a PR that adds the record (`Status: proposed`) *and* the edit to this file it describes.
-   Name what it affects: constitution sections, PRD requirement ids, feature ids.
+1. **Propose** — open a PR that adds the record (`Status: proposed`) *and* the edit to this file it describes. Name what it affects: constitution sections, PRD requirement ids, feature ids.
 2. **Review** — the maintainer reviews; an agent never approves or merges its own amendment.
-3. **Ratify** — merging the PR ratifies it. The record says `Status: ratified` and `Ratified by:` the PR.
-   A rejected or withdrawn PR keeps its record with that status; numbers are never reused.
+3. **Ratify** — merging the PR ratifies it. The record says `Status: ratified` and `Ratified by:` the PR. A rejected or withdrawn PR keeps its record with that status; numbers are never reused.
 4. **Supersede** — a later amendment may replace an earlier one; mark the old record `superseded by NNNN`.
 
 Records are append-only history: fix a ratified rule with a new amendment, never by editing an old record. [0001](amendments/0001-ratify-constitution.md) ratifies this document.

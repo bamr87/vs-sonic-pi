@@ -1,6 +1,8 @@
 <!-- kit: governance v0.1.0 -->
 # Amendments — vs-sonic-pi
 
+> The append-only log of numbered amendments to the constitution, each ratified by the maintainer merging its PR.
+
 The append-only log of changes to [the constitution](../constitution.md). Process: constitution § 8.
 
 - File name: `NNNN-kebab-slug.md`, next free number, never reused. Copy [0000-template.md](0000-template.md).

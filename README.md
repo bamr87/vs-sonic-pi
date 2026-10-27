@@ -46,9 +46,7 @@ Start, stop, and save audio recordings as WAV files — all from within VS Code.
 
 31 snippets for common patterns like `live_loop`, `with_fx`, `play`, `sample`, and more.
 
----
-
-## Quick Start
+## Quick start
 
 1. **Install Sonic Pi** from [sonic-pi.net](https://sonic-pi.net)
 2. **Open Sonic Pi** (the application must be running)
@@ -64,58 +62,37 @@ Start, stop, and save audio recordings as WAV files — all from within VS Code.
 
 The extension auto-connects to Sonic Pi when you open a `.spi` file.
 
----
+To build and run the extension from a clone, use the same commands as [AGENTS.md](AGENTS.md#stack--commands):
+
+```bash
+npm install                  # install dependencies (Node >= 20; CI runs npm ci on Node 20 and 22)
+npm run build                # esbuild bundle → dist/extension.js; then F5 ("Run Extension") opens the Extension Development Host
+npm run watch                # rebuild on change
+npm run lint                 # eslint src/
+npm test                     # vitest run: unit + integration, plus the docs/reference freshness check
+npm run test:watch           # vitest in watch mode
+npm run docs:reference       # regenerate docs/reference/*.md from package.json contributes
+npm run package              # vsce package → .vsix (needs @vscode/vsce on PATH, as release.yml installs it)
+SONIC_PI_PATH=/path/to/sonic-pi npm run extract-data   # regenerate src/data/sonic-pi-data.json from a Sonic Pi checkout
+SONIC_PI_PATH=/path/to/sonic-pi npm run copy-tutorial  # refresh media/tutorial/ from a Sonic Pi checkout
+```
 
 ## Requirements
 
 - **VS Code** 1.109+
 - **Sonic Pi** v4.x running on the same machine (or use GitHub Codespaces — see below)
 
----
+## Commands, settings and keybindings
 
-## Keybindings
+Open the Command Palette (`Ctrl+Shift+P`) and type "Sonic Pi" to see every command. The ones you will use most:
 
-| Keybinding | Command |
-|-----------|---------|
-| `F5` | Run buffer |
-| `Shift+F5` | Stop all |
-| `Ctrl+F5` / `Cmd+F5` | Run selection |
+- **Run** (`F5`), **Run Selection** (`Ctrl+F5` / `Cmd+F5`) and **Stop** (`Shift+F5`), in `.spi` files.
+- **New Loop File** — opens a ready-to-run starter file with two synced live loops.
+- **Connect** / **Disconnect**, **Open Tutorial** / **Open Examples**, **Beautify Buffer**, **Open Log**, and **Start** / **Stop** / **Save Recording**.
 
----
+Every `live_loop` in a `.spi` file also gets a **▶ Run loop** CodeLens above it: click it to send just that loop to Sonic Pi — tweak one loop and re-send it while the rest of your music keeps playing.
 
-## Settings
-
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `sonicpi.autoConnect` | `true` | Auto-connect on file open |
-| `sonicpi.osc.host` | `127.0.0.1` | Sonic Pi server address |
-| `sonicpi.osc.sendPort` | `4557` | OSC send port |
-| `sonicpi.osc.listenPort` | `4558` | OSC listen port |
-| `sonicpi.heartbeatInterval` | `2000` | Keep-alive interval (ms) |
-| `sonicpi.sonicPiPath` | `""` | Custom Sonic Pi path |
-| `sonicpi.logLevel` | `info` | Log verbosity |
-
-See the full [User Manual](docs/user-manual.md) for detailed configuration examples.
-
----
-
-## Commands
-
-Open the Command Palette (`Ctrl+Shift+P`) and type "Sonic Pi" to see all available commands:
-
-- **Run** / **Run Selection** / **Stop**
-- **New Loop File** — opens a ready-to-run starter file with two synced live loops
-- **Connect** / **Disconnect**
-- **Open Tutorial** / **Open Examples**
-- **Beautify Buffer**
-- **Open Log**
-- **Start Recording** / **Stop Recording** / **Save Recording**
-
-### Run loops individually
-
-Every `live_loop` in a `.spi` file gets a **▶ Run loop** CodeLens above it. Click it to send just that loop to Sonic Pi — tweak one loop and re-send it while the rest of your music keeps playing.
-
----
+The settings you are most likely to change are `sonicpi.autoConnect`, the `sonicpi.osc.*` host and ports, `sonicpi.sonicPiPath` and `sonicpi.logLevel`. The full lists are generated from `package.json`: [commands](docs/reference/commands.md), [settings](docs/reference/settings.md) and [keybindings](docs/reference/keybindings.md). The [User Manual](docs/user-manual.md) has configuration examples.
 
 ## Tutorial
 
@@ -126,8 +103,6 @@ The extension includes the complete Sonic Pi tutorial:
 3. Click a chapter to read it in a styled webview
 
 Topics covered: synths, samples, FX, randomisation, programming structures, live coding, data structures, state, MIDI, OSC, multichannel audio, and more.
-
----
 
 ## GitHub Codespaces
 
@@ -175,7 +150,14 @@ The extension detects the Codespace environment automatically and configures the
 | `AUDIO_STREAM_PORT` | `8080` | HTTP port for audio streaming |
 | `AUDIO_STREAM_ENABLED` | `true` | Set to `false` to disable audio streaming |
 
----
+## Acknowledgments
+
+- [Sonic Pi](https://sonic-pi.net) by Sam Aaron — the live coding music synthesizer that makes this extension possible
+- The Sonic Pi community for the incredible documentation and examples
+
+## Documentation
+
+The [documentation index](docs/README.md) lists every document in the repository: the [User Manual](docs/user-manual.md) for using the extension, the [architecture overview](docs/00-architecture.md) and numbered component designs for working on it, the generated reference above, and the [PRD](docs/PRD.md).
 
 ## Project structure
 
@@ -183,39 +165,30 @@ The extension detects the Codespace environment automatically and configures the
 |---|---|
 | `src/` | Extension source (TypeScript) |
 | `syntaxes/`, `language-configuration.json` | Sonic Pi grammar and editor behaviour |
-| `docs/`, `media/`, `images/` | Built-in tutorial content and assets |
+| `media/tutorial/`, `images/` | Built-in tutorial content and assets |
 | `examples/` | Sample `.spi` files |
 | `test/` | Vitest suites |
+| `docs/` | User manual, architecture and component designs, generated reference |
+| `scripts/`, `tools/` | Data, tutorial and reference generators; vendored fleet doc tools |
+| `.devcontainer/` | The Codespaces image with a headless Sonic Pi server and audio stream |
 
 ## Development
 
-```bash
-npm install
-npm test
-```
+The build, lint and test commands are the [Quick start](#quick-start) block; [AGENTS.md](AGENTS.md) is the canonical guide to working here (module rules, conventions, what is generated) and [CONTRIBUTING.md](CONTRIBUTING.md) covers local setup and the pull request process.
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or pull request on [GitHub](https://github.com/bamr87/vs-sonic-pi).
-
----
+Contributions are welcome — read [CONTRIBUTING.md](CONTRIBUTING.md), then open an issue or pull request on [GitHub](https://github.com/bamr87/vs-sonic-pi). AI agents should start with [AGENTS.md](AGENTS.md). The fleet-wide workflow is described in the hub's [CONTRIBUTING.md](https://github.com/bamr87/bamr87/blob/main/CONTRIBUTING.md).
 
 ## Changelog
 
-Notable changes are recorded in [CHANGELOG.md](CHANGELOG.md).
+Notable changes are recorded in [CHANGELOG.md](CHANGELOG.md), kept by hand in Keep a Changelog format.
 
 ## License
 
 This extension is licensed under the [MIT License](LICENSE).
 
 Tutorial content is derived from the [Sonic Pi](https://sonic-pi.net) project by Sam Aaron, licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
-
----
-
-## Acknowledgments
-
-- [Sonic Pi](https://sonic-pi.net) by Sam Aaron — the live coding music synthesizer that makes this extension possible
-- The Sonic Pi community for the incredible documentation and examples
 
 ---
 

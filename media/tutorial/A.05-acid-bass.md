@@ -30,11 +30,9 @@ end
 
 Take a look at each line. 
 
-1. On the first line we set the default synth to be `tb303` with the
-  `use_synth` fn.
+1. On the first line we set the default synth to be `tb303` with the `use_synth` fn.
 
-2. On line two we create a live loop called `:squelch` which will just
-   loop round and round.
+2. On line two we create a live loop called `:squelch` which will just loop round and round.
 
 3. Line three is where we create our riff - a ring of notes (E in
 octaves 1, 2, and 3) which we simply tick through with `.tick`. We define `n` to represent the current note in the riff. The equals sign just means to assign the value on the right to the name on the left. This will be different every time round the loop. The first time round, `n` will be set to `:e1`. The second time round it will be `:e2`, followed by `:e3`, and then back to `:e1`, cycling round forever.
@@ -42,11 +40,9 @@ octaves 1, 2, and 3) which we simply tick through with `.tick`. We define `n` to
 4. Line four is where we actually trigger our `:tb303` synth. We're
 passing a few interesting opts here: `release:`, `cutoff:`, `res:` and `wave:` which we'll discuss below.
    
-5. Line five is our `sleep` - we're asking the live loop to loop round
-   every `0.125`s or 8 times a second at the default BPM of 60.
+5. Line five is our `sleep` - we're asking the live loop to loop round every `0.125`s or 8 times a second at the default BPM of 60.
    
-6. Line six is the `end` to the live loop. This just tells Sonic Pi
-   where the end of the live loop is.
+6. Line six is the `end` to the live loop. This just tells Sonic Pi where the end of the live loop is.
 
 Whilst you're still figuring out what's going on, type in the code above and hit the Run button. You should hear the `:tb303` kick into action. Now, this is where the action is: let's start live coding.
 
