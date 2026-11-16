@@ -36,6 +36,22 @@ Build a **VS Code extension** that provides a first-class Sonic Pi experience in
 
 ---
 
+## 1.1 Missions
+
+VS Sonic Pi's direction is to become the ultimate open home for all things Sonic Pi in the editor — data, tools, resources and transparency, gathered in one place that anyone can inspect and reuse.
+
+1. **Provide data, tools, resources and transparency for all stakeholders, live-coding musicians, educators and the general public.** Performers, teachers, students and anyone writing music as code are first-class audiences. The aim is a shared, inspectable commons: the same extension, the same docs, and the same path from editor to sound for everyone.
+2. **Give Sonic Pi a first-class home inside Visual Studio Code, equivalent in capability to the native GUI for writing, running and live-coding music, while talking to the existing Sonic Pi server over its OSC API.** Users should be able to code in VS Code and still keep full compatibility with Sonic Pi's language, synths, samples and live loops.
+3. **Teach that practice in the open: IntelliSense, hover docs, a built-in tutorial, and clear OSC control, so a newcomer can learn and a performer can play without leaving the editor.** The extension should be a studio and a classroom, not only a transport to the server.
+
+These missions set the course; they do not claim the work is finished. They serve the PRD's goal of a first-class Sonic Pi experience inside Visual Studio Code, communicating with the existing Ruby and SuperCollider server via OSC.
+
+**Requirement**
+
+- MR1: Constitution §1 states one direction statement and exactly three numbered missions, and the README and AGENTS.md taglines match that direction and link to constitution §1.
+
+Feature [SONICPI-023](features/features.yml) traces to requirement MR1.
+
 ## 2. Vision & Goals
 
 ### 2.1 Vision
@@ -1028,6 +1044,7 @@ Every user-facing capability has a stable id in the feature catalog [`features/f
 | [SONICPI-020](../features/features.yml) | MIDI monitor | tbd | [`src`](../src) · [`docs/PRD.md`](PRD.md) | FR-20 |
 | [SONICPI-021](../features/features.yml) | Audio scope | tbd | [`src`](../src) · [`docs/PRD.md`](PRD.md) | FR-21 |
 | [SONICPI-022](../features/features.yml) | Multi-buffer workspaces | tbd | [`src`](../src) · [`docs/PRD.md`](PRD.md) | FR-22 |
+| [SONICPI-023](../features/features.yml) | Constitution missions | planned | [`docs/constitution.md`](constitution.md) · [`docs/PRD.md`](PRD.md) | MR1 |
 
 **Requirement → feature trace**
 
@@ -1055,6 +1072,7 @@ Every user-facing capability has a stable id in the feature catalog [`features/f
 | FR-20 | SONICPI-020 |
 | FR-21 | SONICPI-021 |
 | FR-22 | SONICPI-022 |
+| MR1 | SONICPI-023 |
 <!-- features:end -->
 
 ## 13. Success Metrics

@@ -6,11 +6,17 @@
 > Agents read this before [AGENTS.md](../AGENTS.md) conventions, the [PRD](PRD.md), or the
 > [feature catalog](../features/features.yml). Ratified by merged PR; amended only per § 8.
 
-## 1. Mission
+## 1. Missions
 
-Build a VS Code extension that provides a first-class Sonic Pi experience inside Visual Studio Code, equivalent in capability to the native Sonic Pi GUI for writing, running, and live-coding music. The extension communicates with the existing Sonic Pi server (Ruby + SuperCollider) via its OSC API so users can code in VS Code while retaining full compatibility with Sonic Pi's language, synths, samples, and live loops.
+VS Sonic Pi's direction is to become the ultimate open home for all things Sonic Pi in the editor — data, tools, resources and transparency, gathered in one place that anyone can inspect and reuse.
 
-_Source: [PRD.md](PRD.md)._
+1. **Provide data, tools, resources and transparency for all stakeholders, live-coding musicians, educators and the general public.** Performers, teachers, students and anyone writing music as code are first-class audiences. The aim is a shared, inspectable commons: the same extension, the same docs, and the same path from editor to sound for everyone.
+2. **Give Sonic Pi a first-class home inside Visual Studio Code, equivalent in capability to the native GUI for writing, running and live-coding music, while talking to the existing Sonic Pi server over its OSC API.** Users should be able to code in VS Code and still keep full compatibility with Sonic Pi's language, synths, samples and live loops.
+3. **Teach that practice in the open: IntelliSense, hover docs, a built-in tutorial, and clear OSC control, so a newcomer can learn and a performer can play without leaving the editor.** The extension should be a studio and a classroom, not only a transport to the server.
+
+These missions set the course; they do not claim the work is finished. They serve the PRD's goal of a first-class Sonic Pi experience inside Visual Studio Code, communicating with the existing Ruby and SuperCollider server via OSC.
+
+_Source: [PRD.md](PRD.md) §1.1._
 
 ## 2. Invariants (non-negotiable)
 
