@@ -14,7 +14,7 @@ Users start with the [user manual](user-manual.md). Contributors start with the 
 
 | Document | What it covers |
 | --- | --- |
-| [`AGENTS.md`](../AGENTS.md) | Sonic Pi for VS Code, an extension to write and perform Sonic Pi music live over OSC — the commands, layout, conventions and module rules for working on it. |
+| [`AGENTS.md`](../AGENTS.md) | VS Sonic Pi's direction is to become the ultimate open home for all things Sonic Pi in the editor: data, tools, resources and transparency, with live-coding in VS Code, OSC control of the Sonic Pi server, and open teaching tools for… |
 | [`CONTRIBUTING.md`](../CONTRIBUTING.md) | How to set up, build, test and lint the extension locally, and the branch, commit and pull request conventions for contributing. |
 | [`SECURITY.md`](../SECURITY.md) | Which versions receive security fixes, how to report a vulnerability privately, and the extension's local security surface. |
 | [`CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md) | The standards of behaviour for everyone taking part. |

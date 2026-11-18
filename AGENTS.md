@@ -2,7 +2,7 @@
 
 # vs-sonic-pi
 
-> Sonic Pi for VS Code, an extension to write and perform Sonic Pi music live over OSC — the commands, layout, conventions and module rules for working on it.
+> VS Sonic Pi's direction is to become the ultimate open home for all things Sonic Pi in the editor: data, tools, resources and transparency, with live-coding in VS Code, OSC control of the Sonic Pi server, and open teaching tools for everyone ([constitution](docs/constitution.md) §1).
 
 ## What this repo is
 
